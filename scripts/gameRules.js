@@ -1,14 +1,15 @@
+const alf = [...'abcdefghijklmnopqrstuvwxyz'];
 class gameRules {
   constructor() {
     this.gameWord = "";
-    this.gameEnters = 0;
-    this.gameDeletes = 0;
+    this.gameEnters = 4;
+    this.gameDeletes = 2;
     this.gamePoints = 0;
     this.gameMultiplier = 0;
 
-    this.gameKeysQuantity = 0;
+    this.gameKeysQuantity = 5;
+    this.gameKeyboard = [...alf, ...alf];
     this.gameKeys = [];
-    this.gameKeyboard = [];
     this.gameGraveyard = [];
   };
 

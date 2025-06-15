@@ -54,7 +54,7 @@ while (gaming) {
     default:
       print("Are you sure you want to exit the game? (y/n)");
       let exit = prompt(":");
-      if (exit.toLowerCase() === "y") {gaming = false};
+    if (exit.toLowerCase() === "y") {gaming = false};
       break;
   };
 };
