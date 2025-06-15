@@ -5,18 +5,17 @@ const dictionary = new Typo("en_US");
 
 // Modules requires
 const {gameRules} = require("./scripts/gameRules.js");
-const {InGameCards, GlobalCards} = require("./scripts/cards.js");
+const {InGameCards, AllCards} = require("./scripts/cards.js");
 
 // Globals
 global.print = console.log;
 
-// Game variables
+// Game varibles 
 let Rules = new gameRules;
 let Cards = new InGameCards;
 let Money = 0;
 let Round = 0;
 let Blind = 300;
-
 
 // Game functions
 function resetGame() {

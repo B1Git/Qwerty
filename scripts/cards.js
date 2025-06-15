@@ -38,7 +38,7 @@ class CardRegistry {
         effectDef(rules);
       };
     };
-
+    
     this.Registry[Name] = Card;
   };
 };
@@ -75,12 +75,12 @@ global.GlobalCards = new CardRegistry;
 
 // Template
 
-GlobalCards.createCard(
-  {Name: "(Nome aqui)", Type: "(Tipo aqui)", Rarity: "(Raridade aqui)"},
-  (rules) => {
-    console.log("Gozadas")
-  }
-);
+//GlobalCards.createCard(
+//  {Name: "(Nome aqui)", Type: "(Tipo aqui)", Rarity: "(Raridade aqui)"},
+//  (rules) => {
+//    console.log("Gozadas")
+//  }
+//);
 
 // Commom
 GlobalCards.createCard(
@@ -102,4 +102,5 @@ GlobalCards.createCard(
 //-------------------------------------------------------------------------//
 
 // Export da inGameCards
-module.exports = {InGameCards, GlobalCards};
+const AllCards = Object.keys(GlobalCards.Registry);
+module.exports = {InGameCards, AllCards};
