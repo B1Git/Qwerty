@@ -5,7 +5,7 @@ const dictionary = new Typo("en_US");
 
 // Modules requires
 const {gameRules} = require("./scripts/gameRules.js");
-const {InGameCards} = require("./scripts/cards.js");
+const {InGameCards, GlobalCards} = require("./scripts/cards.js");
 
 // Globals
 global.print = console.log;
@@ -17,9 +17,6 @@ let Money = 0;
 let Round = 0;
 let Blind = 300;
 
-let allCards = Object.getOwnPropertyNames(Cards).filter((item) => {
-  return typeof Cards[item] === "function";
-});
 
 // Game functions
 function resetGame() {
@@ -33,15 +30,6 @@ function resetGame() {
 function newRound() {
   
 };
-
-for (let i = 0; i < 10; i++) {
-  Cards.addCard("Enter");
-};
-Cards.addCard("Backspace");
-print(Cards.List);
-Cards.playCards(Rules);
-print(Rules.gameMultiplier);
-print(Rules.gamePoints);
 
 // Game loop
 let gaming = true

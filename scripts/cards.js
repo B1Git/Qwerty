@@ -102,4 +102,4 @@ GlobalCards.createCard(
 //-------------------------------------------------------------------------//
 
 // Export da inGameCards
-module.exports = {InGameCards};
+module.exports = {InGameCards, GlobalCards};
