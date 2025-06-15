@@ -5,14 +5,14 @@ const dictionary = new Typo("en_US");
 
 // Modules requires
 const {gameRules} = require("./scripts/gameRules.js");
-const {inGameCards} = require("./scripts/cards.js");
+const {InGameCards} = require("./scripts/cards.js");
 
 // Globals
 global.print = console.log;
 
 // Game variables
 let Rules = new gameRules;
-let Cards = new inGameCards;
+let Cards = new InGameCards;
 let Money = 0;
 let Round = 0;
 let Blind = 300;
@@ -24,7 +24,7 @@ let allCards = Object.getOwnPropertyNames(Cards).filter((item) => {
 // Game functions
 function resetGame() {
   Rules = new gameRules;
-  Cards = new inGameCards;
+  Cards = new InGameCards;
   Money = 0;
   Round = 0;
   Blind = 300;
@@ -38,8 +38,7 @@ for (let i = 0; i < 10; i++) {
   Cards.addCard("Enter");
 };
 Cards.addCard("Backspace");
-Cards.addCard("AzertyCard");
-print(Cards.cardList);
+print(Cards.List);
 Cards.playCards(Rules);
 print(Rules.gameMultiplier);
 print(Rules.gamePoints);
