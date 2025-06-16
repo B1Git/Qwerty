@@ -6,11 +6,16 @@ const dictionary = new Typo("en_US");
 // Modules requires
 const {gameRules} = require("./scripts/gameRules.js");
 const {InGameCards, AllCards} = require("./scripts/cards.js");
+const {Keyboards, KeyboardNames} = require("./scripts/keyboards.js")
 
 // Globals
 global.print = console.log;
+global.write = process.stdout.write
 
-// Game varibles 
+// Game constants
+const Keyboard = new Keyboards;
+
+// Game varibles
 let Rules = new gameRules;
 let Cards = new InGameCards;
 let Money = 0;
@@ -18,6 +23,10 @@ let Round = 0;
 let Blind = 300;
 
 // Game functions
+function selectKeyboard() {
+
+};
+
 function resetGame() {
   Rules = new gameRules;
   Cards = new InGameCards;
@@ -29,6 +38,9 @@ function resetGame() {
 function newRound() {
   
 };
+
+Keyboard.selectKeyboard
+Keyboard.changeRules("Qwerty");
 
 // Game loop
 let gaming = true
