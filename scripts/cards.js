@@ -1,7 +1,11 @@
 // Se um método tiver um "_" antes do nome da função, significa que não é para puxa-lo.
 // Apenas outros métodos devem puxa-lo.
 
-// Classe da carta
+// Classe da carta //
+// É uma class utilizada como "template", mais tarde vai ser utilizada com um extend
+// É obrigatório o Name na classe
+// O applyEffect é a função que solta o efeito da carta. Ela precisa das gameRules para funcionar.
+// Caso o applyEffect não mude na criação de uma carta nova, ele manda um erro se for chamado.
 class DefaultCard {
   constructor(Name, props = {}) {
     this.Name = Name;
@@ -13,7 +17,16 @@ class DefaultCard {
   };
 };
 
-// Classe do registro
+// Classe do registro //
+// Uma classe que é utilizada para registrar cartas novas
+// o "createCard" é utilizada para criar uma carta nova.
+// ele faz isso extendendo a classe DefaultCard e modificando ela de acordo com as propriedades
+// passadas no método.
+// Depois de modificar a classe DefaultCard, ele registra ela no Registry pelo nome
+//
+// o "_createCardInstace" é uma função utilizada pela class InGameCards para "equipar" uma carta.
+// Como o que foi guardado no "createCard" foi uma classe extendida, não uma "new Class", ele precisa
+// criar ela para funcionar, essa função "_createCardInstance" faz isso.
 class CardRegistry {
   constructor() {
     this.Registry = {};
@@ -43,7 +56,11 @@ class CardRegistry {
   };
 };
 
-// Classe que vai ser puxada
+// Classe que vai ser puxada //
+// Meio auto-explicativo, é a classe que será exportada.
+// o List é um array de cartas equipadas, muda a cada jogo novo.
+// o addCard só adiciona uma carta na lista, utilizando o "_createCardInstance", mencionado acima.
+// o playCards joga todas as cartas da List baseado na ordem delas.
 class InGameCards {
   constructor() {
     this.List = [];
@@ -68,12 +85,18 @@ class InGameCards {
   };
 };
 
-// Global para definir as cartas
+// Global para definir o registro de cartas
 global.GlobalCards = new CardRegistry;
 
 //--- Fazer cartas novas a partir daqui ---//
 
 // Template
+
+// ({object}, (function))
+// o objeto pode ter qualquer coisa na real, só precisa obrigatóriamente ter um "Name".
+// de resto, é escolha
+//
+// a função precisa das rules como argumento. e qualquer coisa que envolva as regras pode ser feita na função.
 
 //GlobalCards.createCard(
 //  {Name: "(Nome aqui)", Type: "(Tipo aqui)", Rarity: "(Raridade aqui)"},
