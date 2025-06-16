@@ -32,20 +32,25 @@ class KeyboardRegistry {
     };
     
     this.Registry[Name] = Keyboard;
-    _createKeyboardInstance(Name);
+    this._createKeyboardInstance(Name);
   };
 };
 
 // Classe que vai ser puxada
 class Keyboards {
   constructor() {
-    this.Selected = null;
+    this.Selected = "Qwerty";
   };
 
-  selectKeyboard(name) {
-    const keyboardClass = GlobalKeyboards.Registry[name];
-    if (!keyboardClass) {this.Selected = "Qwerty"; return};
-    this.Selected = name;
+  changeRules(rules) {
+    let keyboardClass = GlobalKeyboards.Registry[this.Selected];
+    if (!keyboardClass) {keyboardClass = GlobalKeyboards.Registry["Qwerty"]};
+    for (const key of Object.keys(keyboardClass)) {
+      let existingRule = rules[key];
+      if (existingRule) {
+        rules[key] = keyboardClass[key];
+      };
+    }
   };
 };
 
@@ -86,5 +91,5 @@ GlobalKeyboards.createKeyboard(
 //-------------------------------------------------------------------------//
 
 // Export da inGameCards
-const KeyboardsNames = Object.keys(GlobalKeyboards.Registry);
-module.exports = {Keyboards, KeyboardsNames};
+const KeyboardNames = Object.keys(GlobalKeyboards.Registry);
+module.exports = {Keyboards, KeyboardNames};
