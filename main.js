@@ -26,14 +26,16 @@ let Blind = 300;
 
 // Game functions
 function selectKeyboard() {
-  print(`\n` + chalk.blue.bold('Teste de cor legal'));
+  print(`\nWhat keyboard do you wish to use?`);
   KeyboardNames.forEach((board, index) => {
-    print(`(${index}) ${board}`);
+    const color = Keyboard.returnPropertyValue(board, "Color");
+    print(`(${index}) ${color ? chalk[color].bold(board) : board}`)
   });
   const response = parseInt(prompt(":"));
-  if (isNaN(response) || response === null) {print(`Default keyboard selected. (Qwerty)`); return};
+  if (isNaN(response) || response === null) {print(`Default keyboard selected. (${chalk.green.bold('Qwerty')})`); return};
   Keyboard.Selected = KeyboardNames[response];
-  print(`Keyboard ${Keyboard.Selected} was selected!`);
+  const color = Keyboard.returnPropertyValue(Keyboard.Selected, "Color");
+  print(`Keyboard ${color ? chalk[color].bold(Keyboard.Selected) : Keyboard.Selected} was selected!`);
 };
 
 function resetGame() {
@@ -45,12 +47,27 @@ function resetGame() {
 };
 
 function newRound() {
-  
 };
 
-print(dictionary.check("color"));
-
 // Game loop
+
+print(`
+
+ $$$$$$\\  $$\\      $$\\ $$$$$$$$\\ $$$$$$$\\ $$$$$$$$\\ $$\\     $$\\ 
+$$  __$$\\ $$ | $\\  $$ |$$  _____|$$  __$$\\__$$  __|\\$$\\   $$  |
+$$ /  $$ |$$ |$$$\\ $$ |$$ |      $$ |  $$ |  $$ |    \\$$\\ $$  / 
+$$ |  $$ |$$ $$ $$\\$$ |$$$$$\\    $$$$$$$  |  $$ |     \\$$$$  /  
+$$ |  $$ |$$$$  _$$$$ |$$  __|   $$  __$$<   $$ |      \\$$  /   
+$$ $$\\$$ |$$$  / \\$$$ |$$ |      $$ |  $$ |  $$ |       $$ |    
+\\$$$$$$ / $$  /   \\$$ |$$$$$$$$\\ $$ |  $$ |  $$ |       $$ |    
+ \\___$$$\\ \\__/     \\__|\\________|\\__|  \\__|  \\__|       \\__|    
+     \\___|                                                      
+                                                                
+                                                                
+
+`);
+print(`\n${chalk.blue.italic.bold('Welcome to QWERTY!')}`);
+
 let gaming = true
 while (gaming) {
   print(
