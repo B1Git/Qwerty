@@ -6,6 +6,7 @@ class gameRules {
     this.gameDeletes = 2;
     this.gamePoints = 0;
     this.gameMultiplier = 0;
+    this.gameTotalPoints = 0;
 
     this.gameKeysQuantity = 5;
     this.gameKeyboard = [...alf, ...alf];
