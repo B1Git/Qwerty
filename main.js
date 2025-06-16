@@ -1,16 +1,18 @@
 // Libraries
-const prompt = require("prompt-sync")();
-const Typo = require("typo-js");
+import chalk from "chalk";
+import promptSync from "prompt-sync";
+const prompt = promptSync();
+const {default: Typo} = await import('typo-js');
 const dictionary = new Typo("en_US");
 
 // Modules requires
-const {gameRules} = require("./scripts/gameRules.js");
-const {InGameCards, AllCards} = require("./scripts/cards.js");
-const {Keyboards, KeyboardNames} = require("./scripts/keyboards.js")
+import {gameRules} from "./scripts/gameRules.js";
+import {InGameCards, AllCards} from "./scripts/cards.js";
+import {Keyboards, KeyboardNames} from "./scripts/keyboards.js";
 
 // Globals
 global.print = console.log;
-global.write = process.stdout.write
+global.write = process.stdout.write;
 
 // Game constants
 const Keyboard = new Keyboards;
@@ -24,7 +26,14 @@ let Blind = 300;
 
 // Game functions
 function selectKeyboard() {
-
+  print(`\n` + chalk.blue.bold('Teste de cor legal'));
+  KeyboardNames.forEach((board, index) => {
+    print(`(${index}) ${board}`);
+  });
+  const response = parseInt(prompt(":"));
+  if (isNaN(response) || response === null) {print(`Default keyboard selected. (Qwerty)`); return};
+  Keyboard.Selected = KeyboardNames[response];
+  print(`Keyboard ${Keyboard.Selected} was selected!`);
 };
 
 function resetGame() {
@@ -39,14 +48,13 @@ function newRound() {
   
 };
 
-Keyboard.selectKeyboard
-Keyboard.changeRules("Qwerty");
+print(dictionary.check("color"));
 
 // Game loop
 let gaming = true
 while (gaming) {
   print(
-  `What do you want to do:
+  `\nWhat do you want to do:
   (1) Start the game.
   (2) Choose keyboard.
   (3) Game records.
@@ -58,7 +66,7 @@ while (gaming) {
       print("Gaming")
       break;
     case 2:
-      print("Keyboard");
+      selectKeyboard();
       break;
     case 3:
       print("Records");
@@ -66,7 +74,8 @@ while (gaming) {
     default:
       print("Are you sure you want to exit the game? (y/n)");
       let exit = prompt(":");
-    if (exit.toLowerCase() === "y") {gaming = false};
+      if (exit === null) {gaming = false};
+      if (exit.toLowerCase() === "y") {gaming = false};
       break;
   };
 };

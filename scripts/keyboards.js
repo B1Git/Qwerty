@@ -93,4 +93,5 @@ GlobalKeyboards.createKeyboard(
 
 // Export dos teclados
 const KeyboardNames = Object.keys(GlobalKeyboards.Registry);
-module.exports = {Keyboards, KeyboardNames};
+export {Keyboards, KeyboardNames};
+//module.exports = {Keyboards, KeyboardNames};

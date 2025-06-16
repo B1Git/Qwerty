@@ -50,4 +50,5 @@ class gameRules {
   };
 };
 
-module.exports = {gameRules};
+export {gameRules};
+//module.exports = {gameRules};

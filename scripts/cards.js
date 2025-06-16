@@ -103,4 +103,5 @@ GlobalCards.createCard(
 
 // Export da inGameCards
 const AllCards = Object.keys(GlobalCards.Registry);
-module.exports = {InGameCards, AllCards};
+export {InGameCards, AllCards};
+//module.exports = {InGameCards, AllCards};

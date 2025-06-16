@@ -9,7 +9,9 @@
   "author": "",
   "license": "ISC",
   "description": "",
+  "type": "module",
   "dependencies": {
+    "chalk": "^5.4.1",
     "prompt-sync": "^4.2.0",
     "typo-js": "^1.2.5"
   }
