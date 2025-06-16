@@ -42,6 +42,14 @@ class Keyboards {
     this.Selected = "Qwerty";
   };
   
+  // Método para retornar um valor de uma Propriedade
+  returnPropertyValue(keyboard, property) {
+    const keyboardClass = GlobalKeyboards.Registry[keyboard];
+    if (!keyboardClass) {return};
+    const prop = keyboardClass[property];
+    return prop ? prop : null;
+  };
+
   // Método para mudar as propriedades da gameRules
   changeRules(rules) {
     let keyboardClass = GlobalKeyboards.Registry[this.Selected];
@@ -73,11 +81,13 @@ const alf = [...'abcdefghijklmnopqrstuvwxyz'];
 GlobalKeyboards.createKeyboard(
   {
     Name: "Qwerty",
+    Color: "green",
   }
 );
 GlobalKeyboards.createKeyboard(
   {
     Name: "Azerty",
+    Color: "blue",
     gameKeysQuantity: 4,
     gameKeyboard: [...alf],
     gameEnters: 2,
@@ -94,4 +104,3 @@ GlobalKeyboards.createKeyboard(
 // Export dos teclados
 const KeyboardNames = Object.keys(GlobalKeyboards.Registry);
 export {Keyboards, KeyboardNames};
-//module.exports = {Keyboards, KeyboardNames};
