@@ -1,7 +1,7 @@
 // Se um método tiver um "_" antes do nome da função, significa que não é para puxa-lo.
 // Apenas outros métodos devem puxa-lo.
 
-// Classe da carta
+// Classe do teclado
 class DefaultKeyboard {
   constructor(Name, props = {}) {
     this.Name = Name;
@@ -41,7 +41,8 @@ class Keyboards {
   constructor() {
     this.Selected = "Qwerty";
   };
-
+  
+  // Método para mudar as propriedades da gameRules
   changeRules(rules) {
     let keyboardClass = GlobalKeyboards.Registry[this.Selected];
     if (!keyboardClass) {keyboardClass = GlobalKeyboards.Registry["Qwerty"]};
@@ -54,11 +55,11 @@ class Keyboards {
   };
 };
 
-// Global para definir as cartas
+// Global para definir os teclados
 global.GlobalKeyboards = new KeyboardRegistry;
 const alf = [...'abcdefghijklmnopqrstuvwxyz'];
 
-//--- Fazer cartas novas a partir daqui ---//
+//--- Fazer teclados novos a partir daqui ---//
 
 // Template
 
@@ -90,6 +91,6 @@ GlobalKeyboards.createKeyboard(
 // Legendary
 //-------------------------------------------------------------------------//
 
-// Export da inGameCards
+// Export dos teclados
 const KeyboardNames = Object.keys(GlobalKeyboards.Registry);
 module.exports = {Keyboards, KeyboardNames};
