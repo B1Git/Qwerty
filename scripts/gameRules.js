@@ -51,4 +51,3 @@ class gameRules {
 };
 
 export {gameRules};
-//module.exports = {gameRules};
