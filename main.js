@@ -18,11 +18,11 @@ global.write = process.stdout.write;
 const Keyboard = new Keyboards;
 
 // Game varibles
-let Rules = new gameRules;
-let Cards = new InGameCards;
-let Money = 0;
-let Round = 0;
-let Blind = 300;
+let Rules;
+let Cards;
+let Money;
+let Round;
+let Blind;
 
 // Game functions
 function selectKeyboard() {
@@ -46,11 +46,21 @@ function resetGame() {
   Blind = 300;
 };
 
+function startGame() {
+  Rules = new gameRules;
+  Cards = new InGameCards;
+  Money = 0;
+  Round = 0;
+  Blind = 300;
+
+  
+
+};
+
 function newRound() {
 };
 
-// Game loop
-
+// Entrance message
 print(`
 
  $$$$$$\\  $$\\      $$\\ $$$$$$$$\\ $$$$$$$\\ $$$$$$$$\\ $$\\     $$\\ 
@@ -68,6 +78,7 @@ $$ $$\\$$ |$$$  / \\$$$ |$$ |      $$ |  $$ |  $$ |       $$ |
 `);
 print(`\n${chalk.blue.italic.bold('Welcome to QWERTY!')}`);
 
+// Game loop
 let gaming = true
 while (gaming) {
   print(
