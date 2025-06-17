@@ -11,8 +11,8 @@ import {InGameCards, AllCards} from "./scripts/cards.js";
 import {Keyboards, KeyboardNames} from "./scripts/keyboards.js";
 
 // Globals
-global.print = console.log;
-global.clear = console.clear;
+const print = console.log;
+const clear = console.clear;
 
 // Game constants
 const Keyboard = new Keyboards;
@@ -20,18 +20,20 @@ const Keyboard = new Keyboards;
 // Game varibles
 let Rules;
 let Cards;
-let Money;
-let Round;
-let Typos;
-let HighestEnter;
 
-// Functions 
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-};
+let MinRequiredPoints; //Typos
+let Round;
+let Money;
+
+let PlaysQuantity; // Enters quantity
+let HighestTotalPoints; // Highest Enter
+
+// functions
+const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
 
 // Game functions
-function selectKeyboard() {
+async function selectKeyboard() {
+  clear();
   print(`\nWhat keyboard do you wish to use?`);
   KeyboardNames.forEach((board, index) => {
     const color = Keyboard.returnPropertyValue(board, "Color");
@@ -42,28 +44,38 @@ function selectKeyboard() {
   Keyboard.Selected = KeyboardNames[response];
   const color = Keyboard.returnPropertyValue(Keyboard.Selected, "Color");
   print(`Keyboard ${color ? chalk[color].bold(Keyboard.Selected) : Keyboard.Selected} was selected!`);
+  await sleep(1000);
 };
 
 async function startGame() {
   Cards = new InGameCards;
+  Round = 1;
+  MinRequiredPoints = 300;
   Money = 0;
-  Round = 0;
-  Typos = 0;
-  HighestEnter = 0;
-  print(`\n${chalk.green.italic.bold("Let the game begin!")}`);
-  await sleep(1500);
+  HighestTotalPoints = 0;
+  PlaysQuantity = 0;
 
+  for (let i = 3; i > 0; i--) {
+    clear();
+    print(chalk.green.italic.bold(`Game starting in...${i}`));
+    await sleep(1000);
+  };
+  
   while (true) {
-    newRound()
-    if (Rules.gameTotalPoints >= Typos) {continue};
-    print(`\n${chalk.red.italic.bold("Game over!")}`);
-    print('Your highest played enter was: ');
-    print(`${chalk.green.bold(HighestEnter)} Total Points!`);
-    break;
+    await newRound()
+    if (Rules.gameTotalPoints < MinRequiredPoints || MinRequiredPoints === 0) {
+      clear();
+      print(`${chalk.red.italic.bold("Game over!")}`);
+      print('Your highest played enter was: ');
+      print(`${chalk.green.bold(HighestTotalPoints)} Total Points!`);
+      print(`\nPress ${chalk.italic.bold('ENTER')} to proceed.`);
+      prompt(':');
+      break;
+    };
   };
 };
 
-function newRound() {
+async function newRound() {
   if (!Cards) {throw new Error("Jogo começou sem as Cartas.")};
   Rules = new gameRules;
   Keyboard.changeRules(Rules);
@@ -71,18 +83,33 @@ function newRound() {
 
   let playing = true
   while (playing) {
-    if (Rules.gameEnters < 1 || Rules.gameTotalPoints >= Typos) {playing = false; break};
+    if (Rules.gameEnters < 1 || Rules.gameTotalPoints >= MinRequiredPoints) {playing = false; break};
+
     clear();
-    print(``)
     print(`${Rules.gamePoints} x ${Rules.gameMultiplier}`);
     print(`Enters: ${Rules.gameEnters}`);
     print(`Deletes: ${Rules.gameDeletes}`);
     print(`Letters: ${Rules.gameKeys}`);
-    const response = prompt(`:`);
+    print(`(1) to see your Keyboard; (2) to see your Cards;`)
+    const word = prompt(`:`);
+    
+    const number = parseInt(word)
+    if (!isNaN(number) && number) {
+      playing = false;
+      break;
+    };
+    
+    print(`\nAre you sure you want to ${chalk.italic.bold('ENTER')} ${word}?`);
+    if (!dictionary.check(word)) {print(chalk.red.bold(`${word} isn't a real word.`))};
+    print(`(N/n to ${chalk.italic.bold('not ENTER')}.)`)
+    const response = prompt(":");
+    if (!response || response.toLowerCase() === "n") {continue};
   };
 };
 
 // Entrance message
+let firstTime = true;
+clear();
 print(`
 
  $$$$$$\\  $$\\      $$\\ $$$$$$$$\\ $$$$$$$\\ $$$$$$$$\\ $$\\     $$\\ 
@@ -103,23 +130,28 @@ print(`\n${chalk.blue.italic.bold('Welcome to QWERTY!')}`);
 // Game loop
 let running = true
 while (running) {
+  if (!firstTime) {
+    clear();
+    print(chalk.blue.italic.bold("\\QWERTY/"));
+  };
   print(
   `\nWhat do you want to do:
   (1) Start the game.
   (2) Choose keyboard.
-  (3) Game records.
+  (3) How to play.
   (0) Exit game.`);
+  firstTime = false;
   let response = parseInt(prompt(":"));
 
   switch (response) {
     case 1:
-      startGame();
+      await startGame();
       break;
     case 2:
-      selectKeyboard();
+      await selectKeyboard();
       break;
     case 3:
-      print("Records");
+      print("Playing");
       break;
     default:
       print("Are you sure you want to exit the game? (y/n)");
