@@ -1,12 +1,14 @@
+import {System} from "./default.js";
 const alf = [...'abcdefghijklmnopqrstuvwxyz'];
 class gameRules {
   constructor() {
-    this.gameWord = "";
+    this.gameWord = [];
     this.gameEnters = 4;
     this.gameDeletes = 2;
     this.gamePoints = 0;
     this.gameMultiplier = 0;
     this.gameTotalPoints = 0;
+    this.gameSpeed = 1000;
 
     this.gameKeysQuantity = 5;
     this.gameKeyboard = [...alf, ...alf];
@@ -14,13 +16,13 @@ class gameRules {
     this.gameGraveyard = [];
   };
 
-  randomInit(min, max) {
+  async randomInit(min, max) {
     const minCeiled = Math.ceil(min);
     const maxFloored = Math.floor(max);
     return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled);
   };
 
-  getKeys() {
+  async getKeys() {
     let loopSize = this.gameKeysQuantity - this.gameKeys.length;
     if (this.gameKeyboard.length < loopSize) {loopSize = this.gameKeyboard.length};
     if (loopSize <= 0) {return};
@@ -33,8 +35,7 @@ class gameRules {
     };
   };
 
-  deleteKeys(keysToDelete) {
-    if (this.gameDeletes < 1) {return};
+  async deleteKeys(keysToDelete) {
     let tempArr = this.gameKeys.filter((item) => {
       return !keysToDelete.includes(item);
     });
@@ -48,6 +49,12 @@ class gameRules {
     });
     this.gameKeys = tempArr;
     this.getKeys();
+  };
+
+  async playWord() {
+    if (!this.gameWord[1]) {return};
+    const word = this.gameWord[0];
+    
   };
 };
 

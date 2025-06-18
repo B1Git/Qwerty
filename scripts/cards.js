@@ -6,6 +6,7 @@
 // É obrigatório o Name na classe
 // O applyEffect é a função que solta o efeito da carta. Ela precisa das gameRules para funcionar.
 // Caso o applyEffect não mude na criação de uma carta nova, ele manda um erro se for chamado.
+import {System} from "./default.js";
 class DefaultCard {
   constructor(Name, props = {}) {
     this.Name = Name;
@@ -66,7 +67,7 @@ class InGameCards {
     this.List = [];
   };
 
-  addCard(name) {
+  async addCard(name) {
     let existingCard = this.List.find(([card]) => card.Name === name);
     if (existingCard) {
       existingCard[1] += 1;
@@ -76,7 +77,7 @@ class InGameCards {
     };
   };
 
-  playCards(rules) {
+  async playCards(rules) {
     this.List.forEach(([card, count]) => {
       for (let i = 0; i < count; i++) {
         card.applyEffect(rules);

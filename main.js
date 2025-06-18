@@ -6,11 +6,13 @@ const {default: Typo} = await import('typo-js');
 const dictionary = new Typo("en_US");
 
 // Modules requires
+import {System} from "./scripts/default.js"
 import {gameRules} from "./scripts/gameRules.js";
 import {InGameCards, AllCards} from "./scripts/cards.js";
 import {Keyboards, KeyboardNames} from "./scripts/keyboards.js";
 
 // Globals
+const sleep = System.sleep;
 const print = console.log;
 const clear = console.clear;
 
@@ -29,7 +31,6 @@ let PlaysQuantity; // Enters quantity
 let HighestTotalPoints; // Highest Enter
 
 // functions
-const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
 
 // Game functions
 async function selectKeyboard() {
@@ -77,14 +78,17 @@ async function startGame() {
 
 async function newRound() {
   if (!Cards) {throw new Error("Jogo começou sem as Cartas.")};
+  // set new rules for the round
   Rules = new gameRules;
   Keyboard.changeRules(Rules);
   Rules.getKeys();
 
+  // round loop
   let playing = true
   while (playing) {
     if (Rules.gameEnters < 1 || Rules.gameTotalPoints >= MinRequiredPoints) {playing = false; break};
 
+    // board do jogo
     clear();
     print(`${Rules.gamePoints} x ${Rules.gameMultiplier}`);
     print(`Enters: ${Rules.gameEnters}`);
@@ -93,17 +97,23 @@ async function newRound() {
     print(`(1) to see your Keyboard; (2) to see your Cards;`)
     const word = prompt(`:`);
     
+    // Opções de escolha
     const number = parseInt(word)
     if (!isNaN(number) && number) {
       playing = false;
       break;
     };
     
+    // Confirmação da palavra
     print(`\nAre you sure you want to ${chalk.italic.bold('ENTER')} ${word}?`);
     if (!dictionary.check(word)) {print(chalk.red.bold(`${word} isn't a real word.`))};
     print(`(N/n to ${chalk.italic.bold('not ENTER')}.)`)
     const response = prompt(":");
     if (!response || response.toLowerCase() === "n") {continue};
+    
+    // Jogada da palavra
+    Rules.gameWord = [word, dictionary.check(word)];
+    Rules.playWord();
   };
 };
 

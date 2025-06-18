@@ -4,6 +4,7 @@
 // Classe do teclado //
 // Classe template para ser extendida depois.
 // O Nome é obrigatório para funcionar.
+import {System} from "./default.js";
 class DefaultKeyboard {
   constructor(Name, props = {}) {
     this.Name = Name;
@@ -56,7 +57,7 @@ class Keyboards {
   };
   
   // Método para retornar um valor de uma Propriedade
-  returnPropertyValue(keyboard, property) {
+  async returnPropertyValue(keyboard, property) {
     const keyboardClass = GlobalKeyboards.Registry[keyboard];
     if (!keyboardClass) {return};
     const prop = keyboardClass[property];
@@ -64,7 +65,7 @@ class Keyboards {
   };
 
   // Método para mudar as propriedades da gameRules
-  changeRules(rules) {
+  async changeRules(rules) {
     let keyboardClass = GlobalKeyboards.Registry[this.Selected];
     if (!keyboardClass) {keyboardClass = GlobalKeyboards.Registry["Qwerty"]};
     for (const key of Object.keys(keyboardClass)) {
