@@ -6,14 +6,15 @@
 // É obrigatório o Name na classe
 // O applyEffect é a função que solta o efeito da carta. Ela precisa das gameRules para funcionar.
 // Caso o applyEffect não mude na criação de uma carta nova, ele manda um erro se for chamado.
-import {System} from "./default.js";
+import {system} from "./default.js";
+import chalk from "chalk";
 class DefaultCard {
   constructor(Name, props = {}) {
     this.Name = Name;
     Object.assign(this, props);
   };
 
-  applyEffect(rules) {
+  async applyEffect(rules) {
     throw new Error("applyEffect() precisa ser implementado pela subclasse.")
   };
 };
@@ -39,7 +40,7 @@ class CardRegistry {
     return new cardClass();
   };
 
-  createCard(props, effectDef) {
+  async createCard(props, effectDef) {
     const {Name} = props;
     if (!Name) {throw new Error("Propriedade 'Name' é obrigatória para criar uma carta.")}
 
@@ -48,8 +49,8 @@ class CardRegistry {
         super(Name, props);
       };
 
-      applyEffect(rules) {
-        effectDef(rules);
+      async applyEffect(rules) {
+        await effectDef(rules);
       };
     };
     
@@ -78,11 +79,12 @@ class InGameCards {
   };
 
   async playCards(rules) {
-    this.List.forEach(([card, count]) => {
+    for (const [card, count] of this.List) {
       for (let i = 0; i < count; i++) {
-        card.applyEffect(rules);
+        await card.applyEffect(rules);
+        await system.sleep(rules.gameSpeed);
       };
-    });
+    };
   };
 };
 
@@ -107,16 +109,16 @@ global.GlobalCards = new CardRegistry;
 //);
 
 // Commom
-GlobalCards.createCard(
-  {Name: "Enter", Type: "MultBoost", Rarity: "Commom"},
-  (rules) => {
+await GlobalCards.createCard(
+  {Name: "Enter", Type: "Boost", Rarity: "Commom", Desc: `Gives +${chalk.red.bold('5')}`},
+  async (rules) => {
     rules.gameMultiplier += 5;
   }
 );
-GlobalCards.createCard(
-  {Name: "Backspace", Type: "PointBoost", Rarity: "Commom"},
-  (rules) => {
-    rules.gamePoints += 10;
+await GlobalCards.createCard(
+  {Name: "Backspace", Type: "Boost", Rarity: "Commom", Desc: `Gives +${chalk.blue.bold('50')}`},
+  async (rules) => {
+    rules.gamePoints += 50;
   }
 );
 

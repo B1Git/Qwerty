@@ -6,13 +6,13 @@ const {default: Typo} = await import('typo-js');
 const dictionary = new Typo("en_US");
 
 // Modules requires
-import {System} from "./scripts/default.js"
+import {system} from "./scripts/default.js"
 import {gameRules} from "./scripts/gameRules.js";
 import {InGameCards, AllCards} from "./scripts/cards.js";
 import {Keyboards, KeyboardNames} from "./scripts/keyboards.js";
 
 // Globals
-const sleep = System.sleep;
+const sleep = system.sleep;
 const print = console.log;
 const clear = console.clear;
 
@@ -33,25 +33,10 @@ let HighestTotalPoints; // Highest Enter
 // functions
 
 // Game functions
-async function selectKeyboard() {
-  clear();
-  print(`\nWhat keyboard do you wish to use?`);
-  KeyboardNames.forEach((board, index) => {
-    const color = Keyboard.returnPropertyValue(board, "Color");
-    print(`(${index}) ${color ? chalk[color].bold(board) : board}`)
-  });
-  const response = parseInt(prompt(":"));
-  if (isNaN(response) || response === null) {print(`Default keyboard selected. (${chalk.green.bold('Qwerty')})`); return};
-  Keyboard.Selected = KeyboardNames[response];
-  const color = Keyboard.returnPropertyValue(Keyboard.Selected, "Color");
-  print(`Keyboard ${color ? chalk[color].bold(Keyboard.Selected) : Keyboard.Selected} was selected!`);
-  await sleep(1000);
-};
-
 async function startGame() {
   Cards = new InGameCards;
   Round = 1;
-  MinRequiredPoints = 300;
+  MinRequiredPoints = 2000000;
   Money = 0;
   HighestTotalPoints = 0;
   PlaysQuantity = 0;
@@ -64,7 +49,7 @@ async function startGame() {
   
   while (true) {
     await newRound()
-    if (Rules.gameTotalPoints < MinRequiredPoints || MinRequiredPoints === 0) {
+    if (Rules.gameScore < MinRequiredPoints || MinRequiredPoints === 0) {
       clear();
       print(`${chalk.red.italic.bold("Game over!")}`);
       print('Your highest played enter was: ');
@@ -86,20 +71,22 @@ async function newRound() {
   // round loop
   let playing = true
   while (playing) {
-    if (Rules.gameEnters < 1 || Rules.gameTotalPoints >= MinRequiredPoints) {playing = false; break};
+    if (Rules.gameEnters < 1 || Rules.gameScore >= MinRequiredPoints) {playing = false; break};
 
     // board do jogo
     clear();
-    print(`${Rules.gamePoints} x ${Rules.gameMultiplier}`);
-    print(`Enters: ${Rules.gameEnters}`);
-    print(`Deletes: ${Rules.gameDeletes}`);
-    print(`Letters: ${Rules.gameKeys}`);
-    print(`(1) to see your Keyboard; (2) to see your Cards;`)
+    print(`${chalk.bold.inverse(`Typos: ${MinRequiredPoints}`)}`);
+    print(`\n${chalk.magenta.bold(Rules.gameScore)}`);
+    print(`${chalk.blue.bold(Rules.gamePoints)} x ${chalk.red.bold(Rules.gameMultiplier)}`);
+    print(`\n${chalk.green.bold('ENTER:')} ${Rules.gameEnters}`);
+    print(`${chalk.red.bold("DELETE:")} ${Rules.gameDeletes}`);
+    print(`[LETTERS: ${Rules.gameKeys}]`)
+    print(`\n(1) to see your Keyboard; (2) to see your Cards;`)
     const word = prompt(`:`);
     
     // Opções de escolha
     const number = parseInt(word)
-    if (!isNaN(number) && number) {
+    if (!isNaN(number) && number || word === '0') {
       playing = false;
       break;
     };
@@ -109,13 +96,48 @@ async function newRound() {
     if (!dictionary.check(word)) {print(chalk.red.bold(`${word} isn't a real word.`))};
     print(`(N/n to ${chalk.italic.bold('not ENTER')}.)`)
     const response = prompt(":");
-    if (!response || response.toLowerCase() === "n") {continue};
+    if (response === null || response.toLowerCase() === "n") {continue};
     
     // Jogada da palavra
     Rules.gameWord = [word, dictionary.check(word)];
-    Rules.playWord();
+    await Rules.playWord();
+    Rules.gameSpeed = 1000;
+
+    // Score calculation
+    Rules.gameScore = Rules.gamePoints * Rules.gameMultiplier;
+    clear();
+    print(chalk.magenta.bold.italic(`0 x 0`));
+    print(`${chalk.blue.bold(Rules.gamePoints)} x ${chalk.red.bold(Rules.gameMultiplier)}`);
+    await system.sleep(1000);
+    print(chalk.magenta.bold.italic(`${Rules.gamePoints} x 0`));
+    Rules.gamePoints = 0;
+    print(`${chalk.blue.bold(Rules.gamePoints)} x ${chalk.red.bold(Rules.gameMultiplier)}`);
+    await system.sleep(1000);
+    print(chalk.magenta.bold.italic(`${Rules.gamePoints} x ${Rules.gameMultiplier}`));
+    Rules.gameMultiplier = 0;
+    print(`${chalk.blue.bold(Rules.gamePoints)} x ${chalk.red.bold(Rules.gameMultiplier)}`);
+    await system.sleep(1000);
+    print(chalk.magenta.bold.italic(Rules.gameScore));
+    print(`${chalk.blue.bold(Rules.gamePoints)} x ${chalk.red.bold(Rules.gameMultiplier)}`);
+    await system.sleep(500);
   };
 };
+
+async function selectKeyboard() {
+  clear();
+  print(`\nWhat keyboard do you wish to use?`);
+  KeyboardNames.forEach((board, index) => {
+    const color = Keyboard.returnPropertyValue(board, "Color");
+    print(`(${index}) ${color ? chalk[color].bold(board) : board}`)
+  });
+  const response = parseInt(prompt(":"));
+  if (isNaN(response) || response === null) {print(`Default keyboard selected. (${chalk.green.bold('Qwerty')})`); return};
+  Keyboard.Selected = KeyboardNames[response];
+  const color = Keyboard.returnPropertyValue(Keyboard.Selected, "Color");
+  print(`Keyboard ${color ? chalk[color].bold(Keyboard.Selected) : Keyboard.Selected} was selected!`);
+  await sleep(1000);
+};
+
 
 // Entrance message
 let firstTime = true;
@@ -151,20 +173,23 @@ while (running) {
   (3) How to play.
   (0) Exit game.`);
   firstTime = false;
-  let response = parseInt(prompt(":"));
+  let response = prompt(":");
 
   switch (response) {
-    case 1:
+    case '1':
       await startGame();
       break;
-    case 2:
+    case '2':
       await selectKeyboard();
       break;
-    case 3:
+    case '3':
       print("Playing");
       break;
+    case '00':
+      running = false;
+      break;
     default:
-      print("Are you sure you want to exit the game? (y/n)");
+      print("Are you sure you want to exit the game? (Y/N)");
       let exit = prompt(":");
       if (exit === null) {running = false};
       if (exit.toLowerCase() === "y") {running = false};

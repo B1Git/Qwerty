@@ -4,7 +4,7 @@
 // Classe do teclado //
 // Classe template para ser extendida depois.
 // O Nome é obrigatório para funcionar.
-import {System} from "./default.js";
+import {system} from "./default.js";
 class DefaultKeyboard {
   constructor(Name, props = {}) {
     this.Name = Name;
@@ -81,7 +81,7 @@ class Keyboards {
 // esse três pontos antes da string no array alf
 // serve para desconstruir o array em ["a", "b", "c", etc.]
 global.GlobalKeyboards = new KeyboardRegistry;
-const alf = [...'abcdefghijklmnopqrstuvwxyz'];
+const alf = [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'];
 
 //--- Fazer teclados novos a partir daqui ---//
 
