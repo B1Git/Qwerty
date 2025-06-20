@@ -2,6 +2,7 @@ import {system} from "./default.js";
 import chalk from "chalk";
 const alf = [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'];
 const print = console.log;
+const nToS = system.locatedNumber; // numberToString;
 class gameRules {
   constructor() {
     this.gameWord = [];
@@ -34,7 +35,7 @@ class gameRules {
     for (let i = 0; i < loopSize; i++) {
       let randomKey = this.gameKeyboard[this.randomInit(0, this.gameKeyboard.length)];
       this.gameKeys.push(randomKey);
-      const index = this.gameKeyboard.indexOf(randomKey);
+    const index = this.gameKeyboard.indexOf(randomKey);
       this.gameKeyboard.splice(index, 1);
     };
   };
@@ -67,8 +68,9 @@ class gameRules {
     // Multiplicador por tamanho da palavra
     console.clear();
     print(chalk.bold.italic(`Word size verification...`));
-    print(`${chalk.blue.bold(this.gamePoints.toLocaleString('en-US'))} x ${chalk.red.bold(this.gameMultiplier.toLocaleString('en-US'))}`);
+    print(`${chalk.blue.bold(nToS(this.gamePoints))} x ${chalk.red.bold(this.gameMultiplier)}`);
     print(`\n${word}`);
+    const oldMultiplier = this.gameMultiplier
     await system.sleep(this.gameSpeed);
     for (let i = 0; i < word.length; i++) {
       let result = '';
@@ -84,9 +86,9 @@ class gameRules {
       this.gameMultiplier += 1;
       console.clear();
       print(chalk.bold.italic(`Word size verification...`));
-      print(`${chalk.blue.bold(this.gamePoints.toLocaleString('en-US'))} x ${chalk.red.bold(this.gameMultiplier.toLocaleString('en-US'))}`);
+      print(`${chalk.blue.bold(nToS(this.gamePoints))} x ${chalk.red.bold(nToS(this.gameMultiplier))}`);
       print(`\n${result}`);
-      print(`+${chalk.red.bold(i+1)}`);
+      print(`+${chalk.red.bold(nToS(this.gameMultiplier - oldMultiplier))}`);
 
       this._acelerateGame();
       await system.sleep(this.gameSpeed);
@@ -100,7 +102,7 @@ class gameRules {
       let gameKeysString = `[${this.gameKeys.join(", ")}]`;
       console.clear();
       print(chalk.bold.italic(`Correct letters verification...`));
-      print(`${chalk.blue.bold(this.gamePoints.toLocaleString('en-US'))} x ${chalk.red.bold(this.gameMultiplier.toLocaleString('en-US'))}`);
+      print(`${chalk.blue.bold(nToS(this.gamePoints))} x ${chalk.red.bold(nToS(this.gameMultiplier))}`);
       print(`\n${gameKeysString}`);
       print(`\n${word}`);
       let pointCounter = 0;
@@ -135,10 +137,10 @@ class gameRules {
           pointCounter += 10;
           console.clear();
           print(chalk.bold.italic(`Correct letters verification...`));
-          print(`${chalk.blue.bold(this.gamePoints.toLocaleString('en-US'))} x ${chalk.red.bold(this.gameMultiplier.toLocaleString('en-US'))}`);
+          print(`${chalk.blue.bold(nToS(this.gamePoints))} x ${chalk.red.bold(nToS(this.gameMultiplier))}`);
           print(`\n${keyResult}`);
           print(`\n${result}`);
-          print(`+${chalk.red.blue(pointCounter)}`);
+          print(`+${chalk.red.blue(nToS(pointCounter))}`);
 
           this._acelerateGame();
           await system.sleep(this.gameSpeed);
@@ -154,14 +156,8 @@ class gameRules {
   };
 
   _acelerateGame(rate) {
-    // função exponencial decrescente invertida
-    // Y = A * (1 - e^-k / x)
-    if (!rate) {rate = 10};
-    const A = this.gameDefaultSpeed; // altura máxima que o Y chega;
-    const B = 1; // deslocamento para evitar divisão por 0;
-    const K = rate; // taxa de crescimento (quanto menor, maior rapido);
-    const Y = A * (1 - Math.exp(-K / (this.gameSpeed + B)));
-    this.gameSpeed -= Math.round(Y);
+    const result = system.slowInverselyProportional(this.gameDefaultSpeed, 10, this.gameSpeed);
+    this.gameSpeed -= Math.round(result);
     if (this.gameSpeed <= 50) {this.gameSpeed = 50};
   };
 };

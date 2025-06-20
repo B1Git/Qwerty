@@ -8,6 +8,8 @@
 // Caso o applyEffect não mude na criação de uma carta nova, ele manda um erro se for chamado.
 import {system} from "./default.js";
 import chalk from "chalk";
+const nToS = system.locatedNumber; // numberToString;
+const print = console.log;
 class DefaultCard {
   constructor(Name, props = {}) {
     this.Name = Name;
@@ -84,9 +86,9 @@ class InGameCards {
       console.clear();
       console.log(`Pressing ${coloredCard}...`);
       console.log(`It will be pressed ${chalk.yellow.bold(count)} time(s).`);
-      console.log(`\n${chalk.cyan.bold('KEY')} description:`);
-      console.log(card.Desc ? card.Desc : '');
-      await system.sleep(rules.gameSpeed * 4);
+      //console.log(`\n${chalk.italic.bold('KEY')} ${chalk.cyan.italic.bold('DESCRIPTION')}:`);
+      //console.log(card.Desc ? card.Desc : 'No description availible.');
+      await system.sleep(rules.gameSpeed * 2);
       for (let i = 0; i < count; i++) {
         await card.applyEffect(rules);
         await system.sleep(rules.gameSpeed);

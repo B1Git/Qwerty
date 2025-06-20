@@ -13,6 +13,7 @@ import {Keyboards, KeyboardNames} from "./scripts/keyboards.js";
 
 // Globals
 let systemRunning = true;
+const nToS = system.locatedNumber; // numberToString;
 const print = console.log;
 const clear = console.clear;
 
@@ -24,10 +25,10 @@ let Rules;
 let Cards;
 
 let MinRequiredPoints; //Typos
+let PointsGrowthVarible; //Typo Power
 let Round;
 let Money;
 
-let PlaysQuantity; // Enters quantity
 let HighestScore; // Highest Enter
 
 // functions
@@ -35,11 +36,12 @@ let HighestScore; // Highest Enter
 // Game functions
 async function startGame() {
   Cards = new InGameCards;
-  Round = 1;
-  MinRequiredPoints = 2000000;
-  Money = 0;
   HighestScore = 0;
-  PlaysQuantity = 0;
+  Money = 0;
+
+  PointsGrowthVarible = 1;
+  Round = 1;
+  MinRequiredPoints = 1000000;
 
   clear();
   print(chalk.green.italic.bold('The game is starting...'));
@@ -54,15 +56,54 @@ async function startGame() {
   while (true) {
     const fastExit = await newRound()
     if (fastExit) {break};
+    Rules.gameSpeed = Rules.gameDefaultSpeed;
+
+    clear();
+    print(chalk.italic.underline.bold('TYPOS'));
+    await system.sleep(Rules.gameSpeed);
+    print('x');
+    await system.sleep(Rules.gameSpeed);
+    print(chalk.blue.bold('YOU'));
+    await system.sleep(Rules.gameSpeed * 2);
+
+    clear();
+    print(chalk.underline.bold(nToS(MinRequiredPoints)));
+    await system.sleep(Rules.gameSpeed);
+    print(`x`);
+    await system.sleep(Rules.gameSpeed);
+    print(chalk.magenta.bold(nToS(Rules.gameScore)));
+    await system.sleep(Rules.gameSpeed * 2);
+
     if (Rules.gameScore < MinRequiredPoints || MinRequiredPoints === 0) {
       clear();
-      print(`${chalk.red.bold("Game over!")}`);
-      print(`\nYour highest ${chalk.green.italic.bold('ENTER')} in this game was:`);
-      print(`${chalk.magenta.bold(HighestScore.toLocaleString('en-US'))} Total points!`);
+      print(`${chalk.red.bold("Game over!")}\n`);
+      print(`You lasted ${Round} rounds!`);
+      print(`Your Game Score was ${chalk.magenta.bold(nToS(Rules.gameScore))} points!`);
+      print(`The ${chalk.italic.underline.bold("TYPOS")} had ${chalk.yellow.bold(nToS(MinRequiredPoints))} points!`);
+      print(`You needed ${chalk.blue.bold(nToS(MinRequiredPoints - Rules.gameScore))} more to beat the ${chalk.italic.underline.bold('TYPOS')}!`);
+      print(`Your highest ${chalk.green.italic.bold('ENTER')} this game was ${chalk.magenta.bold(nToS(HighestScore))}!`);
       print(`\nPress ${chalk.green.bold('ENTER')} to proceed.`);
       prompt(':');
       break;
     };
+
+    PointsGrowthVarible += 1;
+    const oldTypo = MinRequiredPoints;
+    MinRequiredPoints = system.roundLargeNumber(system.exponencialGrowth(PointsGrowthVarible));    
+    clear();
+    print(chalk.green.italic.bold('You beat TYPOS!'));
+    await system.sleep(Rules.gameSpeed * 2);
+    print(`\nBut, don't think ${chalk.italic.underline.bold('TYPOS')} will give up that easily!`);
+    await system.sleep(Rules.gameSpeed);
+    print(`${chalk.red.italic.underline.bold('TYPOS')} ${chalk.red.bold('power is growing!!!')}\n`);
+    await system.sleep(Rules.gameSpeed * 2);
+    print(`${chalk.italic.underline.bold('TYPOS')} power went from ${oldTypo} to ${chalk.red.bold(MinRequiredPoints)}!`);
+    print(`\nPress ${chalk.green.bold('ENTER')} to continue.`);
+    prompt(':');
+
+    clear();
+    print(chalk.green.italic.bold('Let the game begin!'));
+    await system.sleep(Rules.gameSpeed);
   };
 };
 
@@ -80,14 +121,15 @@ async function newRound() {
 
     // board do jogo
     clear();
-    print(`${chalk.underline.bold("Typos:")} ${MinRequiredPoints.toLocaleString('en-US')}`);
-    print(`\n${chalk.magenta.bold(Rules.gameScore.toLocaleString('en-US'))}`);
-    print(`${chalk.blue.bold(Rules.gamePoints.toLocaleString('en-US'))} x ${chalk.red.bold(Rules.gameMultiplier.toLocaleString('en-US'))}`);
-    print(`\n${chalk.green.bold('ENTER:')} ${Rules.gameEnters}`);
-    print(`${chalk.red.bold("DELETE:")} ${Rules.gameDeletes}`);
-    print(`${chalk.yellow.bold('LETTERS')}: [${Rules.gameKeys}]`)
+    print(`${chalk.italic.underline.bold("Typos")}: ${nToS(MinRequiredPoints)}`);
+    print(`\n${chalk.magenta.bold(nToS(Rules.gameScore))}`);
+    print(`${chalk.blue.bold(nToS(Rules.gamePoints))} x ${chalk.red.bold(nToS(Rules.gameMultiplier))}`);
+    print(`\n${chalk.green.bold('ENTER:')} ${nToS(Rules.gameEnters)}`);
+    print(`${chalk.red.bold("DELETE:")} ${nToS(Rules.gameDeletes)}`);
+    print(`${chalk.yellow.bold('LETTERS')}: [${Rules.gameKeys}]\n`);
 
-    print(`\nYou can write a word, or type:`);
+    print(`Round: ${Round}`);
+    print(`You can write a word, or type:`);
     print(`(1) To ${chalk.red.bold('DELETE')} specified Letters.`);
     print(`(2) To ${chalk.cyan.bold('ALT + TAB')} your Keys.`);
     print(`(3) To ${chalk.yellow.bold('CTRL + F')} your Keyboards.`);
@@ -111,22 +153,21 @@ async function newRound() {
     });
 
     print(`\nAre you sure you want to ${chalk.green.italic.bold('ENTER')} ${word}?\n`);
-    if (includeKeys.length > 0) {print(`You'll ${chalk.red.italic.bold('DELETE')} the [${includeKeys}] letters.`)};
     if (!dictionary.check(word)) {print(chalk.red.bold(`${word} isn't a real word.`))};
-    print(`\nPress ${chalk.green.bold("ENTER")} to confirm.`)
+    if (includeKeys.length > 0) {print(`You'll ${chalk.red.italic.bold('DELETE')} the [${includeKeys}] letter(s).`)};
+    print(`You'll lose 1 ${chalk.green.italic.bold('ENTER')}.`);
+    print(`\nPress ${chalk.green.bold("ENTER")} to confirm. (C to Cancel.)`);
     const response = prompt(":");
     if (response !== "") {continue};
     
     // Jogada da palavra
     Rules.gameWord = [word, dictionary.check(word)];
     await Rules.playWord();
-    await system.sleep(1000);
 
     // Cards game
-    Cards.addCard("Repeat");
-    Cards.addCard("Repeat");
     if (Cards.List.length > 0) {
-      Rules.gameSpeed = 1000;
+      await system.sleep(Rules.gameSpeed);
+      Rules.gameSpeed = Rules.gameDefaultSpeed;
 
       let cardListString = '';
       for (let i = 0; i < Cards.List.length; i++) {
@@ -137,51 +178,54 @@ async function newRound() {
 
       for (let i = 5; i > 0; i--) {
         clear();
-        print(`Your ${chalk.cyan.bold("KEYS")} will be pressed in...${i}`);
+        print(chalk.green.italic.bold(`Your KEYS will be pressed in...${i}`));
         print(`\nYour ${chalk.cyan.bold('KEYS')} are:`);
         print(`[${cardListString}]`);
-        print(`\nYour ${chalk.cyan.bold('KEYS')} will be pressed in order.`)
-        await system.sleep(1000);
+        print(`\n${chalk.italic.bold('The pressing will occur')} ${chalk.italic.underline.bold('IN ORDER')}.`);
+        await system.sleep(Rules.gameSpeed);
       };
       
       await Cards.playCards(Rules);
-      await system.sleep(1000);
+      await system.sleep(Rules.gameSpeed);
     };
 
     // Score calculation
-    Rules.gameSpeed = 1000;
+    Rules.gameSpeed = Rules.gameDefaultSpeed;
     Rules.deleteKeys(includeKeys);
 
     const realPoints = Rules.gamePoints > 0 ? Rules.gamePoints : 1;
     const realMultiplier = Rules.gameMultiplier > 0 ? Rules.gameMultiplier : 1;
+    const multiplication = realPoints * realMultiplier;
     let oldScore = Rules.gameScore;
-    Rules.gameScore = Rules.gameScore + (realPoints * realMultiplier);
+    Rules.gameScore = Rules.gameScore + multiplication;
+    HighestScore = HighestScore < multiplication ? multiplication : HighestScore;
 
     clear();
     print(chalk.italic.bold('Scoring...'));
-    print(`\n${chalk.magenta.bold(oldScore.toLocaleString('en-US'))}`);
+    print(`\n${chalk.magenta.bold(nToS(oldScore))}`);
     print('+');
-    print(`${chalk.blue.bold(Rules.gamePoints.toLocaleString('en-US'))} x ${chalk.red.bold(Rules.gameMultiplier.toLocaleString('en-US'))}`);
+    print(`${chalk.blue.bold(nToS(Rules.gamePoints))} x ${chalk.red.bold(nToS(Rules.gameMultiplier))}`);
 
-    let localeScore = Rules.gameScore.toLocaleString('en-US');
+    let localeScore = nToS(Rules.gameScore);
     let result = '';
     await system.sleep(Rules.gameSpeed);
     for (let i = 0; i < localeScore.length; i++) {
       result += localeScore[i];
       clear();
       print(chalk.italic.bold('Scoring...'));
-      print(`\n${chalk.magenta.bold(oldScore.toLocaleString('en-US'))}`);
+      print(`\n${chalk.magenta.bold(nToS(oldScore))}`);
       print('+');
-      print(`${chalk.blue.bold(Rules.gamePoints.toLocaleString('en-US'))} x ${chalk.red.bold(Rules.gameMultiplier.toLocaleString('en-US'))}`);
+      print(`${chalk.blue.bold(nToS(Rules.gamePoints))} x ${chalk.red.bold(nToS(Rules.gameMultiplier))}`);
       print(`\n${chalk.magenta.bold(result)}`);
       await system.sleep(Rules.gameSpeed);
       Rules._acelerateGame(50);
     };
-    Rules.gameSpeed = 1000;
+    Rules.gameSpeed = Rules.gameDefaultSpeed;
     print(`\n${chalk.italic.bold('Done!')}`);
     Rules.gamePoints = 0;
     Rules.gameMultiplier = 0;
     Rules.gameEnters -= 1;
+    Round += 1;
     await system.sleep(Rules.gameSpeed);
   };
 };
@@ -247,13 +291,13 @@ while (systemRunning) {
       print("Playing");
       break;
     case '00':
-      running = false;
+      systemRunning = false;
       break;
     default:
       print(chalk.red.bold('Are you sure you want to exit the game? (Y/N)'));
       let exit = prompt(":");
       if (exit === null) {systemRunning = false};
-      if (exit.toLowerCase() === "y") {running = false};
+      if (exit.toLowerCase() === "y") {systemRunning = false};
       break;
   };
 };
