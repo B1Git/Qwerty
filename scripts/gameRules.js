@@ -56,19 +56,18 @@ class gameRules {
   };
 
   async playWord() {
-    //if (!this.gameWord[1]) {return};
+    if (!this.gameWord[1]) {return};
     const upperWord = this.gameWord[0].toUpperCase();
     let wordArray = [...upperWord];
     let keysToDelete = this.gameKeys.filter((item) => {
       return wordArray.includes(item);
     });
-    let speedDivisor = 2;
     let word = this.gameWord[0];
 
     // Multiplicador por tamanho da palavra
     console.clear();
     print(chalk.bold.italic(`Word size verification...`));
-    print(`${chalk.blue.bold(this.gamePoints)} x ${chalk.red.bold(this.gameMultiplier)}`);
+    print(`${chalk.blue.bold(this.gamePoints.toLocaleString('en-US'))} x ${chalk.red.bold(this.gameMultiplier.toLocaleString('en-US'))}`);
     print(`\n${word}`);
     await system.sleep(this.gameSpeed);
     for (let i = 0; i < word.length; i++) {
@@ -85,13 +84,15 @@ class gameRules {
       this.gameMultiplier += 1;
       console.clear();
       print(chalk.bold.italic(`Word size verification...`));
-      print(`${chalk.blue.bold(this.gamePoints)} x ${chalk.red.bold(this.gameMultiplier)}`);
+      print(`${chalk.blue.bold(this.gamePoints.toLocaleString('en-US'))} x ${chalk.red.bold(this.gameMultiplier.toLocaleString('en-US'))}`);
       print(`\n${result}`);
       print(`+${chalk.red.bold(i+1)}`);
 
       this._acelerateGame();
       await system.sleep(this.gameSpeed);
     };
+
+    print(`\n${chalk.italic.bold('Done!')}`);
     await system.sleep(this.gameSpeed);
 
     // Pontos por letra existente   
@@ -99,10 +100,11 @@ class gameRules {
       let gameKeysString = `[${this.gameKeys.join(", ")}]`;
       console.clear();
       print(chalk.bold.italic(`Correct letters verification...`));
-      print(`${chalk.blue.bold(this.gamePoints)} x ${chalk.red.bold(this.gameMultiplier)}`);
+      print(`${chalk.blue.bold(this.gamePoints.toLocaleString('en-US'))} x ${chalk.red.bold(this.gameMultiplier.toLocaleString('en-US'))}`);
       print(`\n${gameKeysString}`);
       print(`\n${word}`);
       let pointCounter = 0;
+      await system.sleep(this.gameSpeed);
       for (let key = 0; key < gameKeysString.length; key++) {
         if (!this.gameKeys.includes(gameKeysString[key])) {continue};
         let keyResult = '';
@@ -133,7 +135,7 @@ class gameRules {
           pointCounter += 10;
           console.clear();
           print(chalk.bold.italic(`Correct letters verification...`));
-          print(`${chalk.blue.bold(this.gamePoints)} x ${chalk.red.bold(this.gameMultiplier)}`);
+          print(`${chalk.blue.bold(this.gamePoints.toLocaleString('en-US'))} x ${chalk.red.bold(this.gameMultiplier.toLocaleString('en-US'))}`);
           print(`\n${keyResult}`);
           print(`\n${result}`);
           print(`+${chalk.red.blue(pointCounter)}`);
@@ -142,12 +144,12 @@ class gameRules {
           await system.sleep(this.gameSpeed);
         };
       };
+      print(`\n${chalk.italic.bold('Done!')}`);
     } else {
       console.clear();
       print(chalk.red.bold.italic(`No correct letters this time...`));
     };
 
-    this.deleteKeys(keysToDelete);
     await system.sleep(this.gameSpeed);
   };
 
@@ -160,7 +162,7 @@ class gameRules {
     const K = rate; // taxa de crescimento (quanto menor, maior rapido);
     const Y = A * (1 - Math.exp(-K / (this.gameSpeed + B)));
     this.gameSpeed -= Math.round(Y);
-    if (this.gameSpeed <= 200) {this.gameSpeed = 200};
+    if (this.gameSpeed <= 50) {this.gameSpeed = 50};
   };
 };
 

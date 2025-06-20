@@ -57,7 +57,7 @@ class Keyboards {
   };
   
   // Método para retornar um valor de uma Propriedade
-  async returnPropertyValue(keyboard, property) {
+  returnPropertyValue(keyboard, property) {
     const keyboardClass = GlobalKeyboards.Registry[keyboard];
     if (!keyboardClass) {return};
     const prop = keyboardClass[property];
@@ -65,7 +65,7 @@ class Keyboards {
   };
 
   // Método para mudar as propriedades da gameRules
-  async changeRules(rules) {
+  changeRules(rules) {
     let keyboardClass = GlobalKeyboards.Registry[this.Selected];
     if (!keyboardClass) {keyboardClass = GlobalKeyboards.Registry["Qwerty"]};
     for (const key of Object.keys(keyboardClass)) {

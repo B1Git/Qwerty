@@ -68,7 +68,7 @@ class InGameCards {
     this.List = [];
   };
 
-  async addCard(name) {
+  addCard(name) {
     let existingCard = this.List.find(([card]) => card.Name === name);
     if (existingCard) {
       existingCard[1] += 1;
@@ -121,6 +121,12 @@ await GlobalCards.createCard(
     rules.gamePoints += 50;
   }
 );
+await GlobalCards.createCard(
+  {Name: 'Repeat', Type: 'Effect', Rarity: 'Uncommom', Color: 'cyan', Desc: `If real word, ${chalk.green.bold('REPEAT')} word scoring.`},
+  async (rules) => {
+    await rules.playWord();
+  }
+)
 
 // Uncommom
 // Rare
