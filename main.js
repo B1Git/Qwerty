@@ -41,7 +41,7 @@ async function startGame() {
 
   PointsGrowthVarible = 1;
   Round = 1;
-  MinRequiredPoints = 1000000;
+  MinRequiredPoints = system.roundLargeNumber(system.exponencialGrowth(PointsGrowthVarible));
 
   clear();
   print(chalk.green.italic.bold('The game is starting...'));
