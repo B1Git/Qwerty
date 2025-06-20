@@ -120,15 +120,33 @@ async function newRound() {
     // Jogada da palavra
     Rules.gameWord = [word, dictionary.check(word)];
     await Rules.playWord();
+    await system.sleep(1000);
 
     // Cards game
-    clear();
-    print('Cartas now');
-    for (let i = 0; i < 50; i++) {
-      Cards.addCard('Repeat');
+    Cards.addCard("Repeat");
+    Cards.addCard("Repeat");
+    if (Cards.List.length > 0) {
+      Rules.gameSpeed = 1000;
+
+      let cardListString = '';
+      for (let i = 0; i < Cards.List.length; i++) {
+        const [card, count] = Cards.List[i];
+        const coloredCard = card.Color ? chalk[card.Color].bold(card.Name) : card.Name;
+        cardListString += i === (Cards.List.length - 1) ? `${coloredCard} x${count}` : `${coloredCard} x${count}, `;
+      };
+
+      for (let i = 5; i > 0; i--) {
+        clear();
+        print(`Your ${chalk.cyan.bold("KEYS")} will be pressed in...${i}`);
+        print(`\nYour ${chalk.cyan.bold('KEYS')} are:`);
+        print(`[${cardListString}]`);
+        print(`\nYour ${chalk.cyan.bold('KEYS')} will be pressed in order.`)
+        await system.sleep(1000);
+      };
+      
+      await Cards.playCards(Rules);
+      await system.sleep(1000);
     };
-    await system.sleep(Rules.gameSpeed);
-    await Cards.playCards(Rules);
 
     // Score calculation
     Rules.gameSpeed = 1000;
@@ -163,6 +181,7 @@ async function newRound() {
     print(`\n${chalk.italic.bold('Done!')}`);
     Rules.gamePoints = 0;
     Rules.gameMultiplier = 0;
+    Rules.gameEnters -= 1;
     await system.sleep(Rules.gameSpeed);
   };
 };

@@ -80,6 +80,13 @@ class InGameCards {
 
   async playCards(rules) {
     for (const [card, count] of this.List) {
+      const coloredCard = card.Color ? chalk[card.Color].bold(card.Name) : card.Name;
+      console.clear();
+      console.log(`Pressing ${coloredCard}...`);
+      console.log(`It will be pressed ${chalk.yellow.bold(count)} time(s).`);
+      console.log(`\n${chalk.cyan.bold('KEY')} description:`);
+      console.log(card.Desc ? card.Desc : '');
+      await system.sleep(rules.gameSpeed * 4);
       for (let i = 0; i < count; i++) {
         await card.applyEffect(rules);
         await system.sleep(rules.gameSpeed);
@@ -122,7 +129,7 @@ await GlobalCards.createCard(
   }
 );
 await GlobalCards.createCard(
-  {Name: 'Repeat', Type: 'Effect', Rarity: 'Uncommom', Color: 'cyan', Desc: `If real word, ${chalk.green.bold('REPEAT')} word scoring.`},
+  {Name: 'Repeat', Type: 'Effect', Rarity: 'Uncommom', Color: 'blue', Desc: `If real word, ${chalk.green.bold('REPEAT')} word scoring.`},
   async (rules) => {
     await rules.playWord();
   }
