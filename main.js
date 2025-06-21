@@ -8,6 +8,7 @@ import {system} from "./scripts/system.js"
 import {gameRules} from "./scripts/gameRules.js";
 import {InGameCards, AllCards} from "./scripts/cards.js";
 import {Keyboards, KeyboardNames} from "./scripts/keyboards.js";
+import {Encounters, EncounterNames} from './scripts/encounters.js';
 
 // Globals
 let systemRunning = true;
@@ -23,24 +24,25 @@ const Keyboard = new Keyboards;
 let Rules;
 let Cards;
 
-let MinRequiredPoints; //Typos
-let PointsGrowthVarible; //Typo Power
-let Round;
-let Money;
+let Globals = {
+  MinRequiredPoints: 0,
+  PointsGrowthVariable: 0,
 
-let HighestScore; // Highest Enter
+  Round: 0,
+  Money: 0,
 
-// functions
+  HighestScore: 0,
+};
 
 // Game functions
 async function startGame() {
   Cards = new InGameCards;
-  HighestScore = 0;
-  Money = 0;
+  Globals.HighestScore = 0;
+  Globals.Money = 0;
 
-  PointsGrowthVarible = 1;
-  Round = 1;
-  MinRequiredPoints = system.roundLargeNumber(system.exponencialGrowth(PointsGrowthVarible));
+  Globals.PointsGrowthVariable = 1;
+  Globals.Round = 1;
+  Globals.MinRequiredPoints = system.roundLargeNumber(system.exponencialGrowth(Globals.PointsGrowthVariable));
 
   // Game starting mensagem
   clear();
@@ -68,29 +70,29 @@ async function startGame() {
     await system.sleep(Rules.gameSpeed * 2);
 
     clear();
-    print(chalk.underline.bold(nToS(MinRequiredPoints)));
+    print(chalk.underline.bold(nToS(Globals.MinRequiredPoints)));
     await system.sleep(Rules.gameSpeed);
     print(`x`);
     await system.sleep(Rules.gameSpeed);
     print(chalk.magenta.bold(nToS(Rules.gameScore)));
     await system.sleep(Rules.gameSpeed * 2);
 
-    if (Rules.gameScore < MinRequiredPoints || MinRequiredPoints === 0) {
+    if (Rules.gameScore < Globals.MinRequiredPoints || Globals.MinRequiredPoints === 0) {
       clear();
       print(`${chalk.red.bold("Game over!")}\n`);
-      print(`You lasted ${Round} rounds!`);
+      print(`You lasted ${Globals.Round} rounds!`);
       print(`Your Game Score was ${chalk.magenta.bold(nToS(Rules.gameScore))} points!`);
-      print(`The ${chalk.italic.underline.bold("TYPOS")} had ${chalk.yellow.bold(nToS(MinRequiredPoints))} points!`);
-      print(`You needed ${chalk.blue.bold(nToS(MinRequiredPoints - Rules.gameScore))} more to beat the ${chalk.italic.underline.bold('TYPOS')}!`);
-      print(`Your highest ${chalk.green.italic.bold('ENTER')} this game was ${chalk.magenta.bold(nToS(HighestScore))}!`);
+      print(`The ${chalk.italic.underline.bold("TYPOS")} had ${chalk.yellow.bold(nToS(Globals.MinRequiredPoints))} points!`);
+      print(`You needed ${chalk.blue.bold(nToS(Globals.MinRequiredPoints - Rules.gameScore))} more to beat the ${chalk.italic.underline.bold('TYPOS')}!`);
+      print(`Your highest ${chalk.green.italic.bold('ENTER')} this game was ${chalk.magenta.bold(nToS(Globals.HighestScore))}!`);
       print(`\nPress ${chalk.green.bold('ENTER')} to proceed.`);
       await prompt(':');
       break;
     };
 
-    PointsGrowthVarible += 1;
-    const oldTypo = MinRequiredPoints;
-    MinRequiredPoints = system.roundLargeNumber(system.exponencialGrowth(PointsGrowthVarible));    
+    Globals.PointsGrowthVariable += 1;
+    const oldTypo = Globals.MinRequiredPoints;
+    Globals.MinRequiredPoints = system.roundLargeNumber(system.exponencialGrowth(Globals.PointsGrowthVariable));    
     clear();
     print(chalk.green.italic.bold('You beat TYPOS!'));
     await system.sleep(Rules.gameSpeed * 2);
@@ -98,7 +100,7 @@ async function startGame() {
     await system.sleep(Rules.gameSpeed);
     print(`${chalk.red.italic.underline.bold('TYPOS')} ${chalk.red.bold('power is growing!!!')}\n`);
     await system.sleep(Rules.gameSpeed * 2);
-    print(`${chalk.italic.underline.bold('TYPOS')} power went from ${oldTypo} to ${chalk.red.bold(MinRequiredPoints)}!`);
+    print(`${chalk.italic.underline.bold('TYPOS')} power went from ${oldTypo} to ${chalk.red.bold(Globals.MinRequiredPoints)}!`);
     print(`\nPress ${chalk.green.bold('ENTER')} to continue.`);
     await prompt(':');
 
@@ -195,22 +197,18 @@ async function newRound() {
   // round loop
   let playing = true
   while (playing) {
-    if (Rules.gameEnters < 1 || Rules.gameScore >= MinRequiredPoints) {playing = false; break};
+    if (Rules.gameEnters < 1 || Rules.gameScore >= Globals.MinRequiredPoints) {playing = false; break};
 
     // board do jogo
-    Cards.addCard('Repeat');
-    Cards.addCard('Repeat');
-    Cards.addCard('Enter');
-    Cards.addCard('Backspace');
     clear();
-    print(`${chalk.italic.underline.bold("Typos")}: ${nToS(MinRequiredPoints)}`);
+    print(`${chalk.italic.underline.bold("Typos")}: ${nToS(Globals.MinRequiredPoints)}`);
     print(`\n${chalk.magenta.bold(nToS(Rules.gameScore))}`);
     print(`${chalk.blue.bold(nToS(Rules.gamePoints))} x ${chalk.red.bold(nToS(Rules.gameMultiplier))}`);
     print(`\n${chalk.green.bold('ENTER:')} ${nToS(Rules.gameEnters)}`);
     print(`${chalk.red.bold("DELETE:")} ${nToS(Rules.gameDeletes)}`);
     print(`${chalk.yellow.bold('LETTERS')}: [${Rules.gameKeys}]\n`);
 
-    print(`Round: ${Round}`);
+    print(`Round: ${Globals.Round}`);
     print(`You can write a word, or type:`);
     print(`(1) To ${chalk.red.bold('DELETE')} specified Letters.`);
     print(`(2) To ${chalk.cyan.bold('ALT + TAB')} your Keys.`);
@@ -286,7 +284,7 @@ async function newRound() {
     const multiplication = realPoints * realMultiplier;
     let oldScore = Rules.gameScore;
     Rules.gameScore = Rules.gameScore + multiplication;
-    HighestScore = HighestScore < multiplication ? multiplication : HighestScore;
+    Globals.HighestScore = Globals.HighestScore < multiplication ? multiplication : Globals.HighestScore;
 
     clear();
     print(chalk.italic.bold('Scoring...'));
@@ -313,7 +311,7 @@ async function newRound() {
     Rules.gamePoints = 0;
     Rules.gameMultiplier = 0;
     Rules.gameEnters -= 1;
-    Round += 1;
+    Globals.Round += 1;
     await system.sleep(Rules.gameSpeed);
   };
 };
