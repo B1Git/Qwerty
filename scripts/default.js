@@ -1,22 +1,64 @@
+import readline from 'readline';
+import { Writable } from 'stream';
+import chalk from 'chalk';
+
+process.stdin.setRawMode(true);
+
+const filteredOutput = new Writable({
+  write(chunk, encoding, callback) {
+    callback();
+  }
+})
+
 class SystemDefault {
   constructor() {
   };
-;
+
+  // Sistemas
+  systemPrompt(question) {
+    return new Promise((resolve) => {
+      const rl = readline.createInterface({
+        input: process.stdin,
+        output: filteredOutput,
+        terminal: true
+      })
+
+      if (process.stdin.isTTY) {
+        process.stdin.setRawMode(false);
+        process.stdin.resume();
+      }
+
+      process.stdout.write(question);
+
+      rl.question('', (response) => {
+        rl.close();
+        if (process.stdin.isTTY) {
+          process.stdin.setRawMode(true);
+          process.stdin.pause();
+        };
+        resolve(response);
+      })
+    });
+  };
+
   async sleep(delay) {
     return new Promise((resolve) => setTimeout(resolve, delay));
   };
 
-  async timedPrint(log, delay) {
-    if (typeof log === "object") {
-      log.forEach((item) => {
-        console.log(item);
-      });
+  // Agilidade
+  async confirmationPrompt(cancel = true) {
+    if (cancel === false) {
+      console.log(`Press ${chalk.green.bold('[ENTER]')} to continue.`);
+      await this.systemPrompt(':');
+      return true;
     } else {
-      console.log(log);
+      console.log(`Press ${chalk.green.bold('[ENTER]')} to confirm. (0 to Cancel)`);
+      let response = await this.systemPrompt(':');
+      return response === '0' ? false : true;
     };
-    await this.sleep(delay);
   };
 
+  // Formulas
   locatedNumber(number, language) {
     if (!number) {return 0};
     if (!language) {language = 'en-US'};

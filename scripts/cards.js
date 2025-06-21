@@ -119,19 +119,19 @@ global.GlobalCards = new CardRegistry;
 
 // Commom
 await GlobalCards.createCard(
-  {Name: "Enter", Type: "Boost", Rarity: "Commom", Desc: `Gives +${chalk.red.bold('5')}`},
+  {Name: "Enter", Type: "Boost", Rarity: "Commom", Desc: `Gives +${chalk.red.bold('5')}.`},
   async (rules) => {
     rules.gameMultiplier += 5;
   }
 );
 await GlobalCards.createCard(
-  {Name: "Backspace", Type: "Boost", Rarity: "Commom", Desc: `Gives +${chalk.blue.bold('50')}`},
+  {Name: "Backspace", Type: "Boost", Rarity: "Commom", Desc: `Gives +${chalk.blue.bold('50')}.`},
   async (rules) => {
     rules.gamePoints += 50;
   }
 );
 await GlobalCards.createCard(
-  {Name: 'Repeat', Type: 'Effect', Rarity: 'Uncommom', Color: 'blue', Desc: `If real word, ${chalk.green.bold('REPEAT')} word scoring.`},
+  {Name: 'Repeat', Type: 'Effect', Rarity: 'Uncommom', Color: 'green', Desc: `If real word, ${chalk.green.bold('REPEAT')} word scoring.`},
   async (rules) => {
     await rules.playWord();
   }

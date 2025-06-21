@@ -16,7 +16,7 @@ class gameRules {
     this.gameScore = 0;
 
     this.gameEnters = 4;
-    this.gameDeletes = 2;
+    this.gameDeletes = 4;
     this.gameDefaultSpeed = 1000;
     this.gameSpeed = 1000;
   };
