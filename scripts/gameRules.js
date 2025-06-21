@@ -1,4 +1,4 @@
-import {system} from "./default.js";
+import {system} from "./system.js";
 import chalk from "chalk";
 const alf = [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'];
 const print = console.log;

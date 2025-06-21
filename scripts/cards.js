@@ -6,7 +6,7 @@
 // É obrigatório o Name na classe
 // O applyEffect é a função que solta o efeito da carta. Ela precisa das gameRules para funcionar.
 // Caso o applyEffect não mude na criação de uma carta nova, ele manda um erro se for chamado.
-import {system} from "./default.js";
+import {system} from "./system.js";
 import chalk from "chalk";
 const nToS = system.locatedNumber; // numberToString;
 const print = console.log;

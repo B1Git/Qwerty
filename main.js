@@ -1,12 +1,10 @@
 // Libraries
 import chalk from "chalk";
-//import promptSync from "prompt-sync";
-//const prompt = promptSync();
 const {default: Typo} = await import('typo-js');
 const dictionary = new Typo("en_US");
 
 // Modules requires
-import {system} from "./scripts/default.js"
+import {system} from "./scripts/system.js"
 import {gameRules} from "./scripts/gameRules.js";
 import {InGameCards, AllCards} from "./scripts/cards.js";
 import {Keyboards, KeyboardNames} from "./scripts/keyboards.js";

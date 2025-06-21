@@ -4,7 +4,7 @@
 // Classe do teclado //
 // Classe template para ser extendida depois.
 // O Nome é obrigatório para funcionar.
-import {system} from "./default.js";
+import {system} from "./system.js";
 class DefaultKeyboard {
   constructor(Name, props = {}) {
     this.Name = Name;
