@@ -35,7 +35,7 @@ class gameRules {
     for (let i = 0; i < loopSize; i++) {
       let randomKey = this.gameKeyboard[this.randomInit(0, this.gameKeyboard.length)];
       this.gameKeys.push(randomKey);
-    const index = this.gameKeyboard.indexOf(randomKey);
+      const index = this.gameKeyboard.indexOf(randomKey);
       this.gameKeyboard.splice(index, 1);
     };
   };

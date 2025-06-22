@@ -65,9 +65,20 @@ class CardRegistry {
 // o List é um array de cartas equipadas, muda a cada jogo novo.
 // o addCard só adiciona uma carta na lista, utilizando o "_createCardInstance", mencionado acima.
 // o playCards joga todas as cartas da List baseado na ordem delas.
+function ExecutionOrderPrintOut(List) {
+  print(`\nA list of all your ${chalk.cyan.italic.bold('KEYS')}, in order of execution:`);
+  print(`[${List.length}/5]\n`);
+  for (let i = 0; i < List.length; i++) {
+    const [card, count] = List[i];
+    const coloredCard = card.Color ? chalk[card.Color].bold(card.Name) : card.Name;
+    print(`(${i+1})${count > 1 ? ' ['+count+'x]' : ' '}${coloredCard}:`);
+    print(`${card.Desc ? card.Desc : 'No availible description.'}\n`);
+  };
+};
 class InGameCards {
   constructor() {
     this.List = [];
+    this.HiddenList = [];
   };
 
   addCard(name) {
@@ -94,6 +105,134 @@ class InGameCards {
         await system.sleep(rules.gameSpeed);
       };
     };
+  };
+
+  async switchCards() {
+    if (this.List.length > 0) {
+      ExecutionOrderPrintOut(this.List);
+      // Opções
+      const optionsMessage = [
+        'What do you wish to do?',
+        `(1) To ${chalk.blue.bold('SWITCH')} the positions of specific Keys.`,
+        `(2) To ${chalk.red.bold('DELETE')} specific Keys.`,
+        `(0) To ${chalk.magenta.bold('GO BACK')} to the Game.`,
+      ];
+      await system.arrayPrint(optionsMessage);
+      let response = await system.systemPrompt(':');
+      switch (response) {
+        case '1':
+          if (this.List.length < 2) {
+            print(chalk.red.italic.bold('\nYou need at least 2 KEYS...'));
+            await system.sleep(1000);
+            break;
+          };
+          // Trocar as posições das cartas
+          console.clear();
+          ExecutionOrderPrintOut(this.List);
+          
+          print(`Write down the (numbers) of ${chalk.underline.bold('2')} ${chalk.cyan.italic.bold('KEYS')} you want to ${chalk.blue.italic.bold('SWITCH UP')}. (0 to Cancel)`);
+          let switchResponse = await system.systemPrompt(':');
+          if (!switchResponse || switchResponse === '0') {break};
+          
+          // Resposta para números
+          const responseArray = [...switchResponse];
+          let specificIndexes = responseArray.filter((item) => {
+            return parseInt(item);
+          });
+          specificIndexes = specificIndexes.map(item => parseInt(item));
+
+          // Verificação de números
+          if (specificIndexes.length < 1) {
+            print(chalk.red.italic.bold('\nNext time, write down some (numbers)...'));
+            await system.sleep(1000);
+            break;
+          };
+
+          // Definição de indexes e cartas
+          const firstCardIndex = specificIndexes[0] - 1;
+          const secondCardIndex = specificIndexes[1] - 1;
+          
+          const [firstCard, c1] = this.List[firstCardIndex];
+          const coloredFirstCardName = firstCard.Color ? chalk[firstCard.Color].bold(firstCard.Name) : firstCard.Name;
+
+          const [secondCard, c2] = this.List[secondCardIndex];
+          const coloredSecondCardName = secondCard.Color ? chalk[secondCard.Color].bold(secondCard.Name) : secondCard.Name;
+          
+          // Confirmação
+          print(`\nThe following ${chalk.cyan.italic.bold('KEYS')} will ${chalk.blue.italic.bold('SWITCH UP')}:\n`);
+          print(`${coloredFirstCardName} (${specificIndexes[0]}) => (${specificIndexes[1]})`);
+          print(`${coloredSecondCardName} (${specificIndexes[1]}) => (${specificIndexes[0]})\n`);
+          let confirmation = await system.confirmationPrompt();
+          if (confirmation) {
+            [this.List[firstCardIndex], this.List[secondCardIndex]] = [this.List[secondCardIndex], this.List[firstCardIndex]];
+            print(chalk.green.italic.bold('\nSwitched successfully.'));
+            await system.sleep(1000);
+            break;
+          };
+          
+        break;
+        case '2':
+          // Deletar cartas
+          console.clear();
+          ExecutionOrderPrintOut(this.List);
+
+          print(`Write down the (number) of the ${chalk.cyan.italic.bold('KEYS')} you want to ${chalk.red.italic.bold('DELETE')}. (0 to Cancel)`);
+          let numberResponse = await system.systemPrompt(':');
+          if (!numberResponse || numberResponse === '0') {break};
+
+          // Resposta para números
+          const deleteArray = [...numberResponse];
+          let indexes = deleteArray.filter((item) => {
+            return parseInt(item);
+          });
+          indexes = indexes.map(item => parseInt(item));
+
+          // Verifica se números existem no array
+          if (indexes.length < 1) {
+            print(chalk.red.italic.bold('\nNext time, write down some (numbers)...'));
+            await system.sleep(1000);
+            break;
+          };
+          
+          // Números para cartas
+          let specificKeys = this.List.filter((current, index) => {
+            return indexes.includes(index + 1);
+          });
+
+          // Verifica se existem cartas no array
+          if (specificKeys.length < 1) {
+            print(chalk.red.italic.bold('\nNext time, write down available (numbers)...'));
+            await system.sleep(1000);
+            break;
+          };
+
+          // Confirmação
+          print(`\nYou'll ${chalk.red.italic.bold('DELETE')} the following ${chalk.cyan.italic.bold('KEYS')}:\n`);
+          for (let i = 0; i < specificKeys.length; i++) {
+            const [card, count] = specificKeys[i];
+            const coloredCard = card.Color ? chalk[card.Color].bold(card.Name) : card.Name;
+            print(`(${i+1}) ${coloredCard}.`);
+          };
+          print('');
+          let deleteConfirmation = await system.confirmationPrompt();
+          if (deleteConfirmation) {
+            indexes.forEach((index) => {
+              this.List.splice(index - 1, 1);
+            });
+            print(chalk.green.italic.bold('\nKeys have been successfully deleted.'));
+            await system.sleep(1000);
+            break;
+          };
+
+        break;
+        default:
+        break;
+      };
+    } else {
+      print(chalk.red.italic.bold('You have no KEYS...'));
+      await system.confirmationPrompt(false);
+    };
+
   };
 };
 

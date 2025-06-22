@@ -10,50 +10,57 @@ import {InGameCards, AllCards} from "./scripts/cards.js";
 import {Keyboards, KeyboardNames} from "./scripts/keyboards.js";
 import {Encounters, EncounterNames} from './scripts/encounters.js';
 
-// Globals
+// Constants
 let systemRunning = true;
 const prompt = system.systemPrompt;
 const nToS = system.locatedNumber; // numberToString;
 const print = console.log;
 const clear = console.clear;
-
-// Game constants
 const Keyboard = new Keyboards;
 
 // Game varibles
 let Rules;
 let Cards;
-
 let Globals = {
+  // Typos variables
   MinRequiredPoints: 0,
   PointsGrowthVariable: 0,
-
+  // Game variables
   Round: 0,
   Money: 0,
-
+  // End variables
   HighestScore: 0,
 };
 
-// Game functions
+//--- Game functions ---//
 async function startGame() {
+  // Inicializando as cartas
   Cards = new InGameCards;
+  // Inicializando o Typos
+  Globals.PointsGrowthVariable = 1;
+  Globals.MinRequiredPoints = system.roundLargeNumber(system.exponencialGrowth(Globals.PointsGrowthVariable));
+  // Inicializando coisas do jogo
   Globals.HighestScore = 0;
   Globals.Money = 0;
-
-  Globals.PointsGrowthVariable = 1;
   Globals.Round = 1;
-  Globals.MinRequiredPoints = system.roundLargeNumber(system.exponencialGrowth(Globals.PointsGrowthVariable));
 
   // Game starting mensagem
-  clear();
-  print(chalk.green.italic.bold('The game is starting...'));
-  await system.sleep(500);
   const color = Keyboard.returnPropertyValue(Keyboard.Selected, "Color");
-  print(`Your selected Keyboard: ${color ? chalk[color].bold(Keyboard.Selected) : Keyboard.Selected}`);
-  await system.sleep(1500);
-  clear();
-  print(chalk.green.italic.bold('Let the game begin!'));
-  await system.sleep(1000);
+  const startMessage = [
+    '/c',
+    chalk.green.italic.bold('The game is starting...'),
+    500,
+    `Your selected Keyboard: ${color ? chalk[color].bold(Keyboard.Selected) : Keyboard.Selected}`,
+    1500,
+    '/c',
+    chalk.green.italic.bold('Let the game begin!'),
+    1000,
+  ];
+  await system.arrayPrint(startMessage);
+
+  Cards.addCard('Enter');
+  Cards.addCard('Backspace');
+  Cards.addCard('Repeat');
 
   // Loop do jogo
   while (true) {
@@ -115,9 +122,10 @@ async function roundChoice(number) {
   switch (number) {
     // Deletar letras inúteis
     case 1:
+
       if (Rules.gameDeletes > 0) {
-        print(`\nWrite the down the ${chalk.yellow.italic.bold('LETTERS')} you want to ${chalk.red.italic.bold('DELETE')}. (0 to Cancel)`);
         print(`This will cost you 1 ${chalk.red.italic.bold("DELETE")}.`);
+        print(`\nWrite the down the ${chalk.yellow.italic.bold('LETTERS')} you want to ${chalk.red.italic.bold('DELETE')}. (0 to Cancel)`);
         let response = await prompt(':');
         if (response !== '0') {
           const upperWord = response.toUpperCase();
@@ -138,26 +146,15 @@ async function roundChoice(number) {
         print(`\n${chalk.red.italic.bold('You dont have enough DELETE.')}`);
         await system.confirmationPrompt(false);
       };
+
       break;
     // Ver as cartas do jogo
     case 2:
-      if (Cards.List.length > 0) {
-        print(`\nA list of all your ${chalk.cyan.italic.bold('KEYS')}, in order of execution:\n`);
-        for (let i = 0; i < Cards.List.length; i++) {
-          const [card, count] = Cards.List[i];
-          if (card.Hidden) {continue};
-          const coloredCard = card.Color ? chalk[card.Color].bold(card.Name) : card.Name;
-          print(`(${i+1})${count > 1 ? ' ['+count+'x]' : ' '}${coloredCard}:`);
-          print(`${card.Desc ? card.Desc : 'No availible description.'}\n`);
-        };
-        await system.confirmationPrompt(false);
-      } else {
-        print(`\nYou have no ${chalk.cyan.italic.bold('KEYS')}.`);
-        await system.confirmationPrompt(false);
-      };
+      await Cards.switchCards();
       break;
     // Ver as letras restantes no teclado
     case 3:
+
       let counter = {};
       let result = [];
       for (let letter of Rules.gameKeyboard) {
@@ -175,6 +172,7 @@ async function roundChoice(number) {
       print(`\nYou still have the following ${chalk.yellow.italic.bold('LETTERS')} on your keyboard:`);
       print(`${chalk.yellow.bold('[')}${final}${chalk.yellow.bold(']')}\n`);
       await system.confirmationPrompt(false);
+
       break;
     // Sair do jogo
     default:
@@ -183,7 +181,7 @@ async function roundChoice(number) {
       if (confirmation) {
         return true;
       };
-      break;
+    break;
   };
 };
 
@@ -200,36 +198,51 @@ async function newRound() {
     if (Rules.gameEnters < 1 || Rules.gameScore >= Globals.MinRequiredPoints) {playing = false; break};
 
     // board do jogo
-    clear();
-    print(`${chalk.italic.underline.bold("Typos")}: ${nToS(Globals.MinRequiredPoints)}`);
-    print(`\n${chalk.magenta.bold(nToS(Rules.gameScore))}`);
-    print(`${chalk.blue.bold(nToS(Rules.gamePoints))} x ${chalk.red.bold(nToS(Rules.gameMultiplier))}`);
-    print(`\n${chalk.green.bold('ENTER:')} ${nToS(Rules.gameEnters)}`);
-    print(`${chalk.red.bold("DELETE:")} ${nToS(Rules.gameDeletes)}`);
-    print(`${chalk.yellow.bold('LETTERS')}: [${Rules.gameKeys}]\n`);
-
-    print(`Round: ${Globals.Round}`);
-    print(`You can write a word, or type:`);
-    print(`(1) To ${chalk.red.bold('DELETE')} specified Letters.`);
-    print(`(2) To ${chalk.cyan.bold('ALT + TAB')} your Keys.`);
-    print(`(3) To ${chalk.yellow.bold('CTRL + F')} your keyboard Letters.`);
-    print(`(0) To ${chalk.magenta.bold('EXIT')} the Game.`);
+    const consoleMessage = [
+      '/c',
+      `${chalk.italic.underline.bold("Typos")}: ${nToS(Globals.MinRequiredPoints)}`,
+      '',
+      `${chalk.magenta.bold(nToS(Rules.gameScore))}`,
+      `${chalk.blue.bold(nToS(Rules.gamePoints))} x ${chalk.red.bold(nToS(Rules.gameMultiplier))}`,
+      '',
+      `${chalk.green.bold('ENTER:')} ${nToS(Rules.gameEnters)}`,
+      `${chalk.red.bold("DELETE:")} ${nToS(Rules.gameDeletes)}`,
+      `${chalk.yellow.bold('LETTERS')}: [${Rules.gameKeys}]`,
+      '',
+      `Round: ${Globals.Round}`,
+      `You can write a word, or type:`,
+      `(1) To ${chalk.red.bold('DELETE')} specified Letters.`,
+      `(2) To ${chalk.cyan.bold('ALT + TAB')} your Keys.`,
+      `(3) To ${chalk.yellow.bold('CTRL + F')} your keyboard Letters.`,
+      `(0) To ${chalk.magenta.bold('EXIT')} the Game.`, 
+    ];
+    await system.arrayPrint(consoleMessage);
     const word = await prompt(`:`);
     
     // Opções da escolha
-    if (word === "0") {
-      const exitGame = await roundChoice(0);
-      if (exitGame) {
+    switch (word) {
+      // Volta pro menu com confirm prompt
+      case '0':
+        const exitGame = await roundChoice(0);
+        if (exitGame) {
+          return true;
+        } else {
+          continue;
+        };
+      // Volta pro menu
+      case '00':
         return true;
-      } else {
-        continue;
-      };
+      // Fecha o jogo
+      case '000':
+        systemRunning = false;
+        return true;
+      // Continua o script
+      default:
+      break;
     };
-    if (word === '00') {return true};
-    if (word === "000") {systemRunning = false; return true};
-    const number = parseInt(word)
-    if (number && !isNaN(number)) {
-      await roundChoice(number);
+    const choiceNumber = parseInt(word)
+    if (choiceNumber && !isNaN(choiceNumber)) {
+      await roundChoice(choiceNumber);
       continue;
     };
     
@@ -245,12 +258,13 @@ async function newRound() {
     if (includeKeys.length > 0) {print(`You'll ${chalk.red.italic.bold('DELETE')} the [${includeKeys}] letter(s).`)};
     print(`You'll lose 1 ${chalk.green.italic.bold('ENTER')}.\n`);
     let confirmation = await system.confirmationPrompt();
-    if (!confirmation) {continue};    
-    // Jogada da palavra
+    if (!confirmation) {continue};
+
+    // Verificação da palavra;
     Rules.gameWord = [word, dictionary.check(word)];
     await Rules.playWord();
 
-    // Cards game
+    // Execução das abilidades das cartas
     if (Cards.List.length > 0) {
       await system.sleep(Rules.gameSpeed);
       Rules.gameSpeed = Rules.gameDefaultSpeed;

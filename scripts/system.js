@@ -46,6 +46,29 @@ class SystemDefault {
   };
 
   // Agilidade
+  async arrayPrint(array) {
+    if (typeof array !== 'object') {return};
+    if (array.length < 1) {return};
+    for (const message of array) {
+      if (typeof message === 'number') {
+        await this.sleep(message);
+      } else {
+        switch (message) {
+          case '/enter':
+            return await this.confirmationPrompt();
+          case '/trueEnter':
+            return await this.confirmationPrompt(false);
+          case '/c':
+            console.clear();
+            break;
+          default:
+            console.log(message);
+            break;
+        };
+      };
+    };
+  };
+
   async confirmationPrompt(cancel = true) {
     if (cancel === false) {
       console.log(`Press ${chalk.green.bold('[ENTER]')} to continue.`);
