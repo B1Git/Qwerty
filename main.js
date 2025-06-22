@@ -58,58 +58,64 @@ async function startGame() {
   ];
   await system.arrayPrint(startMessage);
 
-  Cards.addCard('Enter');
-  Cards.addCard('Backspace');
-  Cards.addCard('Repeat');
-
   // Loop do jogo
   while (true) {
     const fastExit = await newRound()
     if (fastExit) {break};
     Rules.gameSpeed = Rules.gameDefaultSpeed;
 
-    clear();
-    print(chalk.italic.underline.bold('TYPOS'));
-    await system.sleep(Rules.gameSpeed);
-    print('x');
-    await system.sleep(Rules.gameSpeed);
-    print(chalk.blue.bold('YOU'));
-    await system.sleep(Rules.gameSpeed * 2);
+    //Mensagem de score
+    const scoreMessage = [
+      '/c',
+      `${chalk.italic.underline.bold('TYPOS')}: ${chalk.underline.bold(nToS(Globals.MinRequiredPoints))}`,
+      Rules.gameSpeed,
+      'x',
+      Rules.gameSpeed,
+      `${chalk.blue.bold('YOU')}: ${chalk.magenta.bold(nToS(Rules.gameScore))}`,
+      Rules.gameSpeed * 2,
+    ];
+    await system.arrayPrint(scoreMessage);
 
-    clear();
-    print(chalk.underline.bold(nToS(Globals.MinRequiredPoints)));
-    await system.sleep(Rules.gameSpeed);
-    print(`x`);
-    await system.sleep(Rules.gameSpeed);
-    print(chalk.magenta.bold(nToS(Rules.gameScore)));
-    await system.sleep(Rules.gameSpeed * 2);
-
-    if (Rules.gameScore < Globals.MinRequiredPoints || Globals.MinRequiredPoints === 0) {
-      clear();
-      print(`${chalk.red.bold("Game over!")}\n`);
-      print(`You lasted ${Globals.Round} rounds!`);
-      print(`Your Game Score was ${chalk.magenta.bold(nToS(Rules.gameScore))} points!`);
-      print(`The ${chalk.italic.underline.bold("TYPOS")} had ${chalk.yellow.bold(nToS(Globals.MinRequiredPoints))} points!`);
-      print(`You needed ${chalk.blue.bold(nToS(Globals.MinRequiredPoints - Rules.gameScore))} more to beat the ${chalk.italic.underline.bold('TYPOS')}!`);
-      print(`Your highest ${chalk.green.italic.bold('ENTER')} this game was ${chalk.magenta.bold(nToS(Globals.HighestScore))}!`);
-      print(`\nPress ${chalk.green.bold('ENTER')} to proceed.`);
-      await prompt(':');
+    if(Rules.gameScore < Globals.MinRequiredPoints || Globals.MinRequiredPoints === 0) {
+      const gameOverMessage = [
+        '/c',
+        chalk.red.bold("Game over!"),
+        '',
+        `You lasted ${Globals.Round} rounds!`,
+        `Your Game Score was ${chalk.magenta.bold(nToS(Rules.gameScore))} points!`,
+        `The ${chalk.italic.underline.bold("TYPOS")} had ${chalk.yellow.bold(nToS(Globals.MinRequiredPoints))} points!`,
+        `You needed ${chalk.blue.bold(nToS(Globals.MinRequiredPoints - Rules.gameScore))} more to beat the ${chalk.italic.underline.bold('TYPOS')}!`,
+        `Your highest ${chalk.green.italic.bold('ENTER')} this game was ${chalk.magenta.bold(nToS(Globals.HighestScore))}!`,
+        '',
+      ];
+      await system.arrayPrint(gameOverMessage);
+      await system.confirmationPrompt(false);
       break;
     };
 
     Globals.PointsGrowthVariable += 1;
     const oldTypo = Globals.MinRequiredPoints;
-    Globals.MinRequiredPoints = system.roundLargeNumber(system.exponencialGrowth(Globals.PointsGrowthVariable));    
+    Globals.MinRequiredPoints = system.roundLargeNumber(system.exponencialGrowth(Globals.PointsGrowthVariable));
+
+    // Mensagem de vitória
+    const oldMoney = Globals.Money;
+    const moneyPerEnter = Rules.gameEnters;
+    const moneyPerDelete = Rules.gameDeletes;
+
+    Globals.Money += (moneyPerEnter + moneyPerDelete);
+    const moneyBeforeInterest = Globals.Money;
+
+    const interest = system.interestCalc(Globals.Money);
+    Globals.Money += interest;
+
     clear();
-    print(chalk.green.italic.bold('You beat TYPOS!'));
-    await system.sleep(Rules.gameSpeed * 2);
-    print(`\nBut, don't think ${chalk.italic.underline.bold('TYPOS')} will give up that easily!`);
-    await system.sleep(Rules.gameSpeed);
-    print(`${chalk.red.italic.underline.bold('TYPOS')} ${chalk.red.bold('power is growing!!!')}\n`);
-    await system.sleep(Rules.gameSpeed * 2);
-    print(`${chalk.italic.underline.bold('TYPOS')} power went from ${oldTypo} to ${chalk.red.bold(Globals.MinRequiredPoints)}!`);
-    print(`\nPress ${chalk.green.bold('ENTER')} to continue.`);
-    await prompt(':');
+    print(chalk.green.italic.bold('You beat TYPOS!\n'));
+    if (moneyPerEnter > 0) {print(`You earned +${chalk.yellow.bold(moneyPerEnter + '$')} for having ${moneyPerEnter} ${chalk.green.italic.bold('ENTER')}.`)};
+    if (moneyPerDelete > 0) {print(`You earned +${chalk.yellow.bold(moneyPerDelete + '$')} for having ${moneyPerDelete} ${chalk.red.italic.bold('DELETE')}.`)};
+    if (interest > 0) {print(`You earned +${chalk.yellow.bold(interest + '$')} because of ${moneyBeforeInterest+'$'} ${chalk.yellow.italic.bold('INTEREST')}.`)};
+    print(`Your money went from ${oldMoney}$ to ${chalk.yellow.bold(Globals.Money + '$')}!\n`);
+    print(`${chalk.italic.underline.bold('TYPOS')} power went from ${oldTypo} to ${chalk.red.bold(Globals.MinRequiredPoints)}!\n`);
+    await system.confirmationPrompt(false);
 
     clear();
     print(chalk.green.italic.bold('Let the game begin!'));
@@ -118,63 +124,16 @@ async function startGame() {
 };
 
 async function roundChoice(number) {
-  // switch case fudido odeio switch case odeio
   switch (number) {
-    // Deletar letras inúteis
     case 1:
-
-      if (Rules.gameDeletes > 0) {
-        print(`This will cost you 1 ${chalk.red.italic.bold("DELETE")}.`);
-        print(`\nWrite the down the ${chalk.yellow.italic.bold('LETTERS')} you want to ${chalk.red.italic.bold('DELETE')}. (0 to Cancel)`);
-        let response = await prompt(':');
-        if (response !== '0') {
-          const upperWord = response.toUpperCase();
-          let wordArray = [...upperWord];
-          let includeKeys = Rules.gameKeys.filter((item) => {
-            return wordArray.includes(item);
-          });
-          if (includeKeys.length > 0) {
-            print(`\nYou'll ${chalk.red.italic.bold('DELETE')} [${includeKeys}].`);
-            let confirmation = await system.confirmationPrompt();
-            if (confirmation) {
-              Rules.deleteKeys(includeKeys);
-              Rules.gameDeletes -= 1;
-            };
-          };
-        };
-      } else {
-        print(`\n${chalk.red.italic.bold('You dont have enough DELETE.')}`);
-        await system.confirmationPrompt(false);
-      };
-
-      break;
-    // Ver as cartas do jogo
+      await Rules.deleteOption();
+    break;
     case 2:
       await Cards.switchCards();
-      break;
-    // Ver as letras restantes no teclado
+    break;
     case 3:
-
-      let counter = {};
-      let result = [];
-      for (let letter of Rules.gameKeyboard) {
-        if (counter[letter]) {
-          counter[letter]++;
-        } else {
-          counter[letter] = 1;
-          result.push(letter);
-        };
-      };
-      const final = result.map(letter => {
-        return counter[letter] > 1 ? ` ${letter}x${counter[letter]}` : ` ${letter}`;
-      })
-      final.sort();
-      print(`\nYou still have the following ${chalk.yellow.italic.bold('LETTERS')} on your keyboard:`);
-      print(`${chalk.yellow.bold('[')}${final}${chalk.yellow.bold(']')}\n`);
-      await system.confirmationPrompt(false);
-
-      break;
-    // Sair do jogo
+      await Rules.availableKeysInKeyboard();
+    break;
     default:
       print(`\nAre you sure you want to ${chalk.red.bold('EXIT')} the game?`);
       let confirmation = await system.confirmationPrompt();
@@ -191,6 +150,7 @@ async function newRound() {
   Rules = new gameRules;
   Keyboard.changeRules(Rules);
   Rules.getKeys();
+  Rules.gameMoney = Globals.Money;
 
   // round loop
   let playing = true
@@ -198,6 +158,7 @@ async function newRound() {
     if (Rules.gameEnters < 1 || Rules.gameScore >= Globals.MinRequiredPoints) {playing = false; break};
 
     // board do jogo
+    const keyboardColor = Keyboard.returnPropertyValue(Keyboard.Selected, 'Color');
     const consoleMessage = [
       '/c',
       `${chalk.italic.underline.bold("Typos")}: ${nToS(Globals.MinRequiredPoints)}`,
@@ -209,7 +170,11 @@ async function newRound() {
       `${chalk.red.bold("DELETE:")} ${nToS(Rules.gameDeletes)}`,
       `${chalk.yellow.bold('LETTERS')}: [${Rules.gameKeys}]`,
       '',
-      `Round: ${Globals.Round}`,
+      '',
+      `${chalk.yellow.bold('Money')}: ${Globals.Money}$`,
+      `${chalk.cyan.bold('Round')}: ${Globals.Round}`,
+      `Keyboard: ${keyboardColor ? chalk[keyboardColor].bold(Keyboard.Selected) : Keyboard.Selected}`,
+      '',      
       `You can write a word, or type:`,
       `(1) To ${chalk.red.bold('DELETE')} specified Letters.`,
       `(2) To ${chalk.cyan.bold('ALT + TAB')} your Keys.`,
@@ -231,11 +196,11 @@ async function newRound() {
         };
       // Volta pro menu
       case '00':
-        return true;
+      return true;
       // Fecha o jogo
       case '000':
         systemRunning = false;
-        return true;
+      return true;
       // Continua o script
       default:
       break;
@@ -256,7 +221,7 @@ async function newRound() {
     print(`\nAre you sure you want to ${chalk.green.italic.bold('ENTER')} ${word}?\n`);
     if (!dictionary.check(word)) {print(chalk.red.bold(`${word} isn't a real word.`))};
     if (includeKeys.length > 0) {print(`You'll ${chalk.red.italic.bold('DELETE')} the [${includeKeys}] letter(s).`)};
-    print(`You'll lose 1 ${chalk.green.italic.bold('ENTER')}.\n`);
+    print(`You'll lose 1 ${chalk.green.bold('ENTER')}.\n`);
     let confirmation = await system.confirmationPrompt();
     if (!confirmation) {continue};
 
@@ -326,22 +291,30 @@ async function newRound() {
     Rules.gameMultiplier = 0;
     Rules.gameEnters -= 1;
     Globals.Round += 1;
+    Globals.Money = Rules.gameMoney;
     await system.sleep(Rules.gameSpeed);
   };
 };
 
 async function selectKeyboard() {
   clear();
-  print(`\nWhat keyboard do you wish to use?`);
+  print(`What keyboard do you wish to use?`);
   KeyboardNames.forEach((board, index) => {
     const color = Keyboard.returnPropertyValue(board, "Color");
-    print(`(${index}) ${color ? chalk[color].bold(board) : board}`)
+    const desc = Keyboard.returnPropertyValue(board, 'Desc');
+    print(`(${index + 1}) ${color ? chalk[color].bold(board) : board}`);
+    print(desc ? desc : 'No description available.');
+    print('');
   });
   const response = parseInt(await prompt(":"));
-  if (isNaN(response) || response === null) {print(`Default keyboard selected. (${chalk.green.bold('Qwerty')})`); return};
-  Keyboard.Selected = KeyboardNames[response];
+  if (isNaN(response) || response === null) {
+    print(`Default keyboard selected. (${chalk.green.bold('Membrane')})`);
+    await system.sleep(1000);
+    return;
+  };
+  Keyboard.Selected = KeyboardNames[response - 1];
   const color = Keyboard.returnPropertyValue(Keyboard.Selected, "Color");
-  print(`Keyboard ${color ? chalk[color].bold(Keyboard.Selected) : Keyboard.Selected} was selected!`);
+  print(`\n${color ? chalk[color].bold(Keyboard.Selected) : Keyboard.Selected} keyboard was selected!`);
   await system.sleep(1000);
 };
 

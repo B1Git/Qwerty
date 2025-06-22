@@ -12,6 +12,7 @@ const filteredOutput = new Writable({
 
 class SystemDefault {
   constructor() {
+    this.InterestLimit = true;
   };
 
   // Sistemas
@@ -43,6 +44,14 @@ class SystemDefault {
 
   async sleep(delay) {
     return new Promise((resolve) => setTimeout(resolve, delay));
+  };
+
+  interestCalc(money) {
+    const bonus = Math.floor(money / 5);
+    if (this.InterestLimit) {
+      if (bonus > 5) {bonus = 5};
+    };
+    return bonus;
   };
 
   // Agilidade

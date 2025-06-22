@@ -216,9 +216,10 @@ class InGameCards {
           print('');
           let deleteConfirmation = await system.confirmationPrompt();
           if (deleteConfirmation) {
-            indexes.forEach((index) => {
-              this.List.splice(index - 1, 1);
+            let filteredArray = this.List.filter((item) => {
+              return !specificKeys.includes(item);
             });
+            this.List = filteredArray;
             print(chalk.green.italic.bold('\nKeys have been successfully deleted.'));
             await system.sleep(1000);
             break;
@@ -229,8 +230,8 @@ class InGameCards {
         break;
       };
     } else {
-      print(chalk.red.italic.bold('You have no KEYS...'));
-      await system.confirmationPrompt(false);
+      print(chalk.red.italic.bold('\nYou have no KEYS...'));
+      await system.sleep(1000);
     };
 
   };

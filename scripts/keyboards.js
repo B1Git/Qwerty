@@ -5,6 +5,7 @@
 // Classe template para ser extendida depois.
 // O Nome é obrigatório para funcionar.
 import {system} from "./system.js";
+import chalk from 'chalk';
 class DefaultKeyboard {
   constructor(Name, props = {}) {
     this.Name = Name;
@@ -53,7 +54,7 @@ class KeyboardRegistry {
 // qualquer coisa de qualquer teclado.
 class Keyboards {
   constructor() {
-    this.Selected = "Qwerty";
+    this.Selected = "Membrane";
   };
   
   // Método para retornar um valor de uma Propriedade
@@ -67,7 +68,7 @@ class Keyboards {
   // Método para mudar as propriedades da gameRules
   changeRules(rules) {
     let keyboardClass = GlobalKeyboards.Registry[this.Selected];
-    if (!keyboardClass) {keyboardClass = GlobalKeyboards.Registry["Qwerty"]};
+    if (!keyboardClass) {keyboardClass = GlobalKeyboards.Registry["Membrane"]};
     for (const key of Object.keys(keyboardClass)) {
       let existingRule = rules[key];
       if (existingRule) {
@@ -100,19 +101,38 @@ const alf = [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'];
 // Commom
 GlobalKeyboards.createKeyboard(
   {
-    Name: "Qwerty",
-    Color: "green",
+    Name: "Membrane",
+    Desc: `A bad keyboard, but it never lets you down. Gives +1 ${chalk.red.bold('DELETE')}.`,
+    gameDeletes: 5,
   }
 );
 GlobalKeyboards.createKeyboard(
   {
-    Name: "Azerty",
-    Color: "blue",
+    Name: "Semi-Mechanical",
+    Color: "green",
+    Desc: `Gives +1 ${chalk.red.bold('DELETE')} and ${chalk.green.bold('ENTER')}, but it makes the game very ${chalk.yellow.italic.bold('dirty')}...`,
     gameKeysQuantity: 4,
     gameKeyboard: [...alf],
-    gameEnters: 2,
-    gameDeletes: 4,
-    keyboardCard: "AzertyCard",
+    gameEnters: 5,
+    gameDeletes: 5,
+  }
+);
+GlobalKeyboards.createKeyboard(
+  {
+    Name: "Mechanical",
+    Color: 'blue',
+    Desc: `Too much ${chalk.green.italic.bold('gaming')}...`,
+    gameEnters: 10,
+    gameDeletes: 1,
+  }
+);
+GlobalKeyboards.createKeyboard(
+  {
+    Name: "Optical",
+    Color: 'yellow',
+    Desc: `Makes the game a little too ${chalk.yellow.italic.bold('fast')}...`,
+    gameDefaultSpeed: 250,
+    gameSpeed: 250,
   }
 );
 

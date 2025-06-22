@@ -14,6 +14,7 @@ class gameRules {
     this.gamePoints = 0;
     this.gameMultiplier = 0;
     this.gameScore = 0;
+    this.gameMoney = 0;
 
     this.gameEnters = 4;
     this.gameDeletes = 4;
@@ -54,6 +55,59 @@ class gameRules {
     });
     this.gameKeys = tempArr;
     this.getKeys();
+  };
+
+  async deleteOption() {
+    if (this.gameDeletes > 0) {
+
+      print(`\nWrite the down the ${chalk.yellow.italic.bold('LETTERS')} you want to ${chalk.red.italic.bold('DELETE')}. (0 to Cancel)`);
+      let response = await system.systemPrompt(':');
+      if (!response || response === '0') {return};
+      
+      const upperWord = response.toUpperCase();
+      let wordArray = [...upperWord];
+      let includeKeys = this.gameKeys.filter((item) => {
+        return wordArray.includes(item);
+      });
+
+      if (includeKeys.length < 1) {
+        print(chalk.red.italic.bold('\nNext time, write down available letters...'));
+        await system.sleep(1000);
+        return;
+      };
+
+      print(`\nYou'll ${chalk.red.italic.bold('DELETE')} [${includeKeys}].`);
+      print(`This will cost you 1 ${chalk.red.bold("DELETE")}.\n`);
+      let confirmation = await system.confirmationPrompt();
+      if (confirmation) {
+        this.deleteKeys(includeKeys);
+        this.gameDeletes -= 1;
+      };
+
+    } else {
+      print(chalk.red.italic.bold('\nYou dont have enough DELETES...'));
+      await system.sleep(1000);
+    };
+  };
+
+  async availableKeysInKeyboard() { 
+    let counter = {};
+    let result = [];
+    for (const letter of this.gameKeyboard) {
+      if (counter[letter]) {
+        counter[letter]++;
+      } else {
+        counter[letter] = 1;
+        result.push(letter);
+      };
+    };
+    const final = result.map(letter => {
+      return counter[letter] > 1 ? ` ${letter}x${counter[letter]}` : ` ${letter}`;
+    })
+    final.sort();
+    print(`\nYou still have the following ${chalk.yellow.italic.bold('LETTERS')} on your keyboard:`);
+    print(`${chalk.yellow.bold('[')}${final}${chalk.yellow.bold(']')}\n`);
+    await system.confirmationPrompt(false);
   };
 
   async playWord() {
