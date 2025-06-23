@@ -46,8 +46,14 @@ class SystemDefault {
     return new Promise((resolve) => setTimeout(resolve, delay));
   };
 
+  randomInit(min, max) {
+    const minCeiled = Math.ceil(min);
+    const maxFloored = Math.floor(max);
+    return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled);
+  };
+
   interestCalc(money) {
-    const bonus = Math.floor(money / 5);
+    let bonus = Math.floor(money / 5);
     if (this.InterestLimit) {
       if (bonus > 5) {bonus = 5};
     };

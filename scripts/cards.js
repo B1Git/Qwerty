@@ -8,6 +8,7 @@
 // Caso o applyEffect não mude na criação de uma carta nova, ele manda um erro se for chamado.
 import {system} from "./system.js";
 import chalk from "chalk";
+const clear = console.clear;
 const nToS = system.locatedNumber; // numberToString;
 const print = console.log;
 class DefaultCard {
@@ -39,7 +40,7 @@ class CardRegistry {
   _createCardInstance(name) {
     const cardClass = this.Registry[name];
     if (!cardClass) {throw new Error(`Carta ${name} não foi registrada.`)}
-    return new cardClass();
+    return cardClass;
   };
 
   async createCard(props, effectDef) {
@@ -56,7 +57,7 @@ class CardRegistry {
       };
     };
     
-    this.Registry[Name] = Card;
+    this.Registry[Name] = new Card;
   };
 };
 
@@ -97,14 +98,47 @@ class InGameCards {
       console.clear();
       console.log(`Pressing ${coloredCard}...`);
       console.log(`It will be pressed ${chalk.yellow.bold(count)} time(s).`);
-      //console.log(`\n${chalk.italic.bold('KEY')} ${chalk.cyan.italic.bold('DESCRIPTION')}:`);
-      //console.log(card.Desc ? card.Desc : 'No description availible.');
       await system.sleep(rules.gameSpeed * 2);
       for (let i = 0; i < count; i++) {
+await GlobalCards.createCard(
+  {Name: "F15", Type: "Boost", Rarity: "Legendary", Desc: `Gives +${chalk.red.bold('5')}.`},
+  async (rules) => {
+    rules.gameMultiplier += 5;
+  }
+);
+await GlobalCards.createCard(
+  {Name: "F18", Type: "Boost", Rarity: "Legendary", Desc: `Gives +${chalk.red.bold('5')}.`},
+  async (rules) => {
+    rules.gameMultiplier += 5;
+  }
+);
         await card.applyEffect(rules);
         await system.sleep(rules.gameSpeed);
+        rules._acelerateGame(5);
       };
     };
+  };
+
+  getRandomCardByRarity(rarity) {
+    const registry = GlobalCards.Registry
+    const filteredCardNames = [];
+
+    for (const cardName in registry) {
+      const card = registry[cardName];
+      if (!card.Rarity) {continue};
+      if (card.Rarity.toLowerCase() === rarity.toLowerCase()) {
+        filteredCardNames.push(cardName);
+      };
+    };
+
+    if (filteredCardNames.length === 0) {
+      throw new Error(`Nenhuma carta de raridade ${rarity} encontrada.`);
+    };
+
+    const randomIndex = system.randomInit(1, filteredCardNames.length);
+    const chosenCardName = filteredCardNames[randomIndex - 1];
+
+    return registry[chosenCardName];
   };
 
   async switchCards() {
@@ -164,7 +198,7 @@ class InGameCards {
           print(`${coloredSecondCardName} (${specificIndexes[1]}) => (${specificIndexes[0]})\n`);
           let confirmation = await system.confirmationPrompt();
           if (confirmation) {
-            [this.List[firstCardIndex], this.List[secondCardIndex]] = [this.List[secondCardIndex], this.List[firstCardIndex]];
+          [this.List[firstCardIndex], this.List[secondCardIndex]] = [this.List[secondCardIndex], this.List[firstCardIndex]];
             print(chalk.green.italic.bold('\nSwitched successfully.'));
             await system.sleep(1000);
             break;
@@ -259,17 +293,37 @@ global.GlobalCards = new CardRegistry;
 
 // Commom
 await GlobalCards.createCard(
-  {Name: "Enter", Type: "Boost", Rarity: "Commom", Desc: `Gives +${chalk.red.bold('5')}.`},
+  {Name: "Enter", Type: "Boost", Rarity: "Commom", Color: 'blue', Desc: `Gives +${chalk.red.bold('5')}.`},
   async (rules) => {
+    clear();
+    print(chalk.italic.bold('Pressing Enter...'));
+    print(`${chalk.blue.bold(nToS(rules.gamePoints))} x ${chalk.red.bold(nToS(rules.gameMultiplier))}`);
+    await system.sleep(rules.gameSpeed);
     rules.gameMultiplier += 5;
+    clear();
+    print(chalk.italic.bold('Pressing Enter...'));
+    print(`${chalk.blue.bold(nToS(rules.gamePoints))} x ${chalk.red.bold(nToS(rules.gameMultiplier))}\n`);
+    print(`+${chalk.red.bold('5')}`);
+    await system.sleep(rules.gameSpeed);
   }
 );
 await GlobalCards.createCard(
-  {Name: "Backspace", Type: "Boost", Rarity: "Commom", Desc: `Gives +${chalk.blue.bold('50')}.`},
+  {Name: "Backspace", Type: "Boost", Rarity: "Commom", Color: 'blue', Desc: `Gives +${chalk.blue.bold('50')}.`},
   async (rules) => {
+    clear();
+    print(chalk.italic.bold('Pressing Backspace...'));
+    print(`${chalk.blue.bold(nToS(rules.gamePoints))} x ${chalk.red.bold(nToS(rules.gameMultiplier))}`);
+    await system.sleep(rules.gameSpeed);
     rules.gamePoints += 50;
+    clear();
+    print(chalk.italic.bold('Pressing Backspace...'));
+    print(`${chalk.blue.bold(nToS(rules.gamePoints))} x ${chalk.red.bold(nToS(rules.gameMultiplier))}\n`);
+    print(`+${chalk.blue.bold('50')}`);
+    await system.sleep(rules.gameSpeed);
   }
 );
+
+// Uncommom
 await GlobalCards.createCard(
   {Name: 'Repeat', Type: 'Effect', Rarity: 'Uncommom', Color: 'green', Desc: `If real word, ${chalk.green.bold('REPEAT')} word scoring.`},
   async (rules) => {
@@ -277,9 +331,70 @@ await GlobalCards.createCard(
   }
 )
 
-// Uncommom
 // Rare
+await GlobalCards.createCard(
+  {Name: "F1", Type: "Boost", Rarity: "Rare", Color: 'red', Desc: `Gives +${chalk.red.bold('25')}.`},
+  async (rules) => {
+    clear();
+    print(chalk.italic.bold('Pressing F1...'));
+    print(`${chalk.blue.bold(nToS(rules.gamePoints))} x ${chalk.red.bold(nToS(rules.gameMultiplier))}`);
+    await system.sleep(rules.gameSpeed);
+    rules.gameMultiplier += 25;
+    clear();
+    print(chalk.italic.bold('Pressing F1...'));
+    print(`${chalk.blue.bold(nToS(rules.gamePoints))} x ${chalk.red.bold(nToS(rules.gameMultiplier))}\n`);
+    print(`+${chalk.red.bold('25')}`);
+    await system.sleep(rules.gameSpeed);
+  }
+);
+await GlobalCards.createCard(
+  {Name: "F2", Type: "Boost", Rarity: "Rare", Color: 'red', Desc: `Gives +${chalk.blue.bold('500')}.`},
+  async (rules) => {
+    clear();
+    print(chalk.italic.bold('Pressing F2...'));
+    print(`${chalk.blue.bold(nToS(rules.gamePoints))} x ${chalk.red.bold(nToS(rules.gameMultiplier))}`);
+    await system.sleep(rules.gameSpeed);
+    rules.gamePoints += 500;
+    clear();
+    print(chalk.italic.bold('Pressing F2...'));
+    print(`${chalk.blue.bold(nToS(rules.gamePoints))} x ${chalk.red.bold(nToS(rules.gameMultiplier))}\n`);
+    print(`+${chalk.blue.bold('500')}`);
+    await system.sleep(rules.gameSpeed);
+  }
+);
+
 // Legendary
+await GlobalCards.createCard(
+  {Name: "Page Up", Type: "Boost", Rarity: "Legendary", Color: 'magenta', Desc: `Gives x${chalk.red.bold('15')}.`},
+  async (rules) => {
+    clear();
+    print(chalk.italic.bold('Pressing Page Up...'));
+    print(`${chalk.blue.bold(nToS(rules.gamePoints))} x ${chalk.red.bold(nToS(rules.gameMultiplier))}`);
+    await system.sleep(rules.gameSpeed);
+    rules.gameMultiplier = rules.gameMultiplier * 10;
+    clear();
+    print(chalk.italic.bold('Pressing Page Up...'));
+    print(`${chalk.blue.bold(nToS(rules.gamePoints))} x ${chalk.red.bold(nToS(rules.gameMultiplier))}\n`);
+    print(`x${chalk.red.bold('10')}`);
+    await system.sleep(rules.gameSpeed);
+  }
+);
+await GlobalCards.createCard(
+  {Name: "Page Down", Type: "Boost", Rarity: "Legendary", Color: 'magenta', Desc: `Gives x${chalk.blue.bold('5')}.`},
+  async (rules) => {
+    clear();
+    print(chalk.italic.bold('Pressing Page Down...'));
+    print(`${chalk.blue.bold(nToS(rules.gamePoints))} x ${chalk.red.bold(nToS(rules.gameMultiplier))}`);
+    await system.sleep(rules.gameSpeed);
+    rules.gamePoints = rules.gamePoints * 5;
+    clear();
+    print(chalk.italic.bold('Pressing Page Down...'));
+    print(`${chalk.blue.bold(nToS(rules.gamePoints))} x ${chalk.red.bold(nToS(rules.gameMultiplier))}\n`);
+    print(`x${chalk.blue.bold('5')}`);
+    await system.sleep(rules.gameSpeed);
+  }
+);
+
 //-------------------------------------------------------------------------//
 
 // Export da inGameCards

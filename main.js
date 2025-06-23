@@ -37,7 +37,7 @@ async function startGame() {
   // Inicializando as cartas
   Cards = new InGameCards;
   // Inicializando o Typos
-  Globals.PointsGrowthVariable = 1;
+  Globals.PointsGrowthVariable = 1; 
   Globals.MinRequiredPoints = system.roundLargeNumber(system.exponencialGrowth(Globals.PointsGrowthVariable));
   // Inicializando coisas do jogo
   Globals.HighestScore = 0;
@@ -67,7 +67,7 @@ async function startGame() {
     //Mensagem de score
     const scoreMessage = [
       '/c',
-      `${chalk.italic.underline.bold('TYPOS')}: ${chalk.underline.bold(nToS(Globals.MinRequiredPoints))}`,
+      `${chalk.italic.underline.bold('TYPOS')}: ${nToS(Globals.MinRequiredPoints)}`,
       Rules.gameSpeed,
       'x',
       Rules.gameSpeed,
@@ -78,7 +78,7 @@ async function startGame() {
 
     if(Rules.gameScore < Globals.MinRequiredPoints || Globals.MinRequiredPoints === 0) {
       const gameOverMessage = [
-        '/c',
+      '/c',
         chalk.red.bold("Game over!"),
         '',
         `You lasted ${Globals.Round} rounds!`,
@@ -116,6 +116,11 @@ async function startGame() {
     print(`Your money went from ${oldMoney}$ to ${chalk.yellow.bold(Globals.Money + '$')}!\n`);
     print(`${chalk.italic.underline.bold('TYPOS')} power went from ${oldTypo} to ${chalk.red.bold(Globals.MinRequiredPoints)}!\n`);
     await system.confirmationPrompt(false);
+
+    // Encontro
+    Rules.gameMoney = Globals.Money;
+    await Encounters.Registry['Shop'].executeEncounter(Rules, Cards);
+    Globals.Money = Rules.gameMoney;
 
     clear();
     print(chalk.green.italic.bold('Let the game begin!'));
@@ -170,10 +175,9 @@ async function newRound() {
       `${chalk.red.bold("DELETE:")} ${nToS(Rules.gameDeletes)}`,
       `${chalk.yellow.bold('LETTERS')}: [${Rules.gameKeys}]`,
       '',
-      '',
-      `${chalk.yellow.bold('Money')}: ${Globals.Money}$`,
-      `${chalk.cyan.bold('Round')}: ${Globals.Round}`,
-      `Keyboard: ${keyboardColor ? chalk[keyboardColor].bold(Keyboard.Selected) : Keyboard.Selected}`,
+      `M: ${chalk.yellow.bold(Globals.Money + '$')}`,
+      `R: ${chalk.cyan.bold(Globals.Round)}`,
+      `K: ${keyboardColor ? chalk[keyboardColor].bold(Keyboard.Selected) : Keyboard.Selected}`,
       '',      
       `You can write a word, or type:`,
       `(1) To ${chalk.red.bold('DELETE')} specified Letters.`,
@@ -345,7 +349,7 @@ while (systemRunning) {
     clear();
     print(chalk.blue.italic.bold("\\QWERTY/"));
   };
-  print(`\nWhat do you wish to do:`);
+  print(`\nWhat do you wish to do?`);
   print(`(1) To ${chalk.green.bold("ENTER")} the Game.`);
   print(`(2) To ${chalk.blue.bold("SELECT")} a Keyboard.`);
   print(`(3) To ${chalk.yellow.bold("LEARN")} the Game.`);
