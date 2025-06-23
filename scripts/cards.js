@@ -100,18 +100,6 @@ class InGameCards {
       console.log(`It will be pressed ${chalk.yellow.bold(count)} time(s).`);
       await system.sleep(rules.gameSpeed * 2);
       for (let i = 0; i < count; i++) {
-await GlobalCards.createCard(
-  {Name: "F15", Type: "Boost", Rarity: "Legendary", Desc: `Gives +${chalk.red.bold('5')}.`},
-  async (rules) => {
-    rules.gameMultiplier += 5;
-  }
-);
-await GlobalCards.createCard(
-  {Name: "F18", Type: "Boost", Rarity: "Legendary", Desc: `Gives +${chalk.red.bold('5')}.`},
-  async (rules) => {
-    rules.gameMultiplier += 5;
-  }
-);
         await card.applyEffect(rules);
         await system.sleep(rules.gameSpeed);
         rules._acelerateGame(5);
