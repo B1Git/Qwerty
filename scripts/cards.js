@@ -319,7 +319,7 @@ await GlobalCards.createCard(
     print(chalk.italic.bold('Pressing F1...'));
     print(`${chalk.blue.bold(nToS(rules.gamePoints))} x ${chalk.red.bold(nToS(rules.gameMultiplier))}`);
     await system.sleep(rules.gameSpeed);
-    rules.gameMultiplier += 25;
+    rules.gameMultiplier += 15;
     clear();
     print(chalk.italic.bold('Pressing F1...'));
     print(`${chalk.blue.bold(nToS(rules.gamePoints))} x ${chalk.red.bold(nToS(rules.gameMultiplier))}\n`);
@@ -334,7 +334,7 @@ await GlobalCards.createCard(
     print(chalk.italic.bold('Pressing F2...'));
     print(`${chalk.blue.bold(nToS(rules.gamePoints))} x ${chalk.red.bold(nToS(rules.gameMultiplier))}`);
     await system.sleep(rules.gameSpeed);
-    rules.gamePoints += 500;
+    rules.gamePoints += 250;
     clear();
     print(chalk.italic.bold('Pressing F2...'));
     print(`${chalk.blue.bold(nToS(rules.gamePoints))} x ${chalk.red.bold(nToS(rules.gameMultiplier))}\n`);
