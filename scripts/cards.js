@@ -248,7 +248,7 @@ class InGameCards {
           };
 
         break;
-        default:
+        default:await rules.playWord();
         break;
       };
     } else {
@@ -313,15 +313,7 @@ await GlobalCards.createCard(
 
 // Uncommom
 await GlobalCards.createCard(
-  {Name: 'Repeat', Type: 'Effect', Rarity: 'Uncommom', Color: 'green', Desc: `If real word, ${chalk.green.bold('REPEAT')} word scoring.`},
-  async (rules) => {
-    await rules.playWord();
-  }
-)
-
-// Rare
-await GlobalCards.createCard(
-  {Name: "F1", Type: "Boost", Rarity: "Rare", Color: 'red', Desc: `Gives +${chalk.red.bold('25')}.`},
+  {Name: "F1", Type: "Boost", Rarity: "Uncommom", Color: 'green', Desc: `Gives +${chalk.red.bold('15')}.`},
   async (rules) => {
     clear();
     print(chalk.italic.bold('Pressing F1...'));
@@ -336,7 +328,7 @@ await GlobalCards.createCard(
   }
 );
 await GlobalCards.createCard(
-  {Name: "F2", Type: "Boost", Rarity: "Rare", Color: 'red', Desc: `Gives +${chalk.blue.bold('500')}.`},
+  {Name: "F2", Type: "Boost", Rarity: "Uncommom", Color: 'green', Desc: `Gives +${chalk.blue.bold('250')}.`},
   async (rules) => {
     clear();
     print(chalk.italic.bold('Pressing F2...'));
@@ -350,6 +342,13 @@ await GlobalCards.createCard(
     await system.sleep(rules.gameSpeed);
   }
 );
+// Rare
+await GlobalCards.createCard(
+  {Name: 'Repeat', Type: 'Effect', Rarity: 'Rare', Color: 'green', Desc: `If real word, ${chalk.green.bold('REPEAT')} word scoring.`},
+  async (rules) => {
+    await rules.playWord();
+  }
+)
 
 // Legendary
 await GlobalCards.createCard(

@@ -48,7 +48,7 @@ class SystemDefault {
 
   randomInit(min, max) {
     const minCeiled = Math.ceil(min);
-    const maxFloored = Math.floor(max);
+    const maxFloored = Math.floor(max) + 1;
     return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled);
   };
 
